@@ -23,7 +23,7 @@ let centerColumnHeight = 1.1;
 let TwoBarScore = 3;
 let ThreeBarScore = 4;
 let TwoBarScoreBlock = 3;
-let OneBarScoreBlock = 4;
+let ThreeBarScoreBlock = 4;
 let adjacentScore = 1;
 let depthScore = 2;
 
@@ -41,7 +41,7 @@ let numPlayers = 1;
 
 // the starting player
 // 1 is human, 2 is AI
-let startingPlayer = player2;
+let startingPlayer = player1;
 
 function setup() {
   // initialize the p5.js canvas

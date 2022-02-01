@@ -253,11 +253,11 @@ let checkBar = function (lastDrop) {
         }
         if (opponentCount + emptyCount >= 3) {
             if (opponentCount == 2) {
-                score += TwoBarScoreBlock;
+                // score += TwoBarScoreBlock;
             } else if (opponentCount == 1) {
                 //print(opponentCount);
                 //print(10);
-                score += OneBarScoreBlock;
+                // score += ThreeBarScoreBlock;
             }
         }
     }
@@ -288,10 +288,10 @@ let checkBar = function (lastDrop) {
         }
         if (opponentCount + emptyCount >= 3) {
             if (opponentCount == 2) {
-                score += TwoBarScoreBlock;
+                // score += TwoBarScoreBlock;
             } else if (opponentCount == 1) {
                 //print(11);
-                score += OneBarScoreBlock;
+                // score += ThreeBarScoreBlock;
             }
         }
     }
@@ -322,10 +322,10 @@ let checkBar = function (lastDrop) {
             }
             if (opponentCount + emptyCount >= 3) {
                 if (opponentCount == 2) {
-                    score += TwoBarScoreBlock;
+                    //score += TwoBarScoreBlock;
                 } else if (opponentCount == 1) {
                     //print(12);
-                    score += OneBarScoreBlock;
+                    //score += ThreeBarScoreBlock;
                 }
             }
             currentRow++;
@@ -358,10 +358,10 @@ let checkBar = function (lastDrop) {
             }
             if (opponentCount + emptyCount >= 3) {
                 if (opponentCount == 2) {
-                    score += TwoBarScoreBlock;
+                    // score += TwoBarScoreBlock;
                 } else if (opponentCount == 1) {
                     //print(13);
-                    score += OneBarScoreBlock;
+                    // score += ThreeBarScoreBlock;
                 }
             }
             currentRow++;
