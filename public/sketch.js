@@ -99,9 +99,9 @@ function draw() {
   // draw settings bars
   let settingsWidth = width / 7 - width / 12
   let settingsHeight = topBarHeight / 8;
-  rect(width - width / 7 + width / 24, topBarHeight / 9 * 2, settingsWidth, settingsHeight, 10, 10);
-  rect(width - width / 7 + width / 24, topBarHeight / 9 * 4, settingsWidth, settingsHeight, 10, 10);
-  rect(width - width / 7 + width / 24, topBarHeight / 9 * 6, settingsWidth, settingsHeight, 10, 10);
+  for (let i = 1; i < 4; i++) {
+    rect(width - width / 7 + width / 24, topBarHeight / 9 * i * 2, settingsWidth, settingsHeight, 10, 10);
+  }
 }
 
 
