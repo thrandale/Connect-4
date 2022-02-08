@@ -2,6 +2,7 @@
 // the number of rows and columns in the board
 const rows = 6;
 const columns = 7;
+let topBarHeight;
 
 // the board
 let board = [];
@@ -45,7 +46,8 @@ let startingPlayer = player1;
 
 function setup() {
   // initialize the p5.js canvas
-  createCanvas((windowHeight / rows) * columns - 25, windowHeight - 25);
+  topBarHeight = windowHeight / 10;
+  createCanvas((windowHeight / rows) * columns - 25 - topBarHeight, windowHeight - 25);
 
   // add the columns to the board
   for (let i = 0; i < columns; i++) {
@@ -85,6 +87,21 @@ function draw() {
     else
       text("It's a TIE!", width / 2, height / 2);
   }
+
+  // draw the heading
+  fill(66, 77, 82);
+  rect(0, 0, width, topBarHeight);
+  textAlign(CENTER, CENTER);
+  textSize(width / 10);
+  fill(154, 181, 160);
+  text("Connect Four", width / 2, topBarHeight / 2);
+
+  // draw settings bars
+  let settingsWidth = width / 7 - width / 12
+  let settingsHeight = topBarHeight / 8;
+  rect(width - width / 7 + width / 24, topBarHeight / 9 * 2, settingsWidth, settingsHeight, 10, 10);
+  rect(width - width / 7 + width / 24, topBarHeight / 9 * 4, settingsWidth, settingsHeight, 10, 10);
+  rect(width - width / 7 + width / 24, topBarHeight / 9 * 6, settingsWidth, settingsHeight, 10, 10);
 }
 
 
@@ -100,14 +117,16 @@ function mouseClicked() {
     }
   } else if (numPlayers == 1) {
     // human plays
-    playerPlay();
+    if (mouseY > topBarHeight) {
+      playerPlay();
 
-    for (let i = 0; i < columns; i++) {
-      board[i].draw();
+      for (let i = 0; i < columns; i++) {
+        board[i].draw();
+      }
+
+      // ai plays
+      aiPlay(player2);
     }
-
-    // ai plays
-    aiPlay(player2);
   } else {
     // two human players
     playerPlay();

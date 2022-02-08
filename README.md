@@ -6,7 +6,8 @@
 - Graphics are implemented using [p5.js](https://p5js.org/)
 
 ## How to use
-- Open the index.html file in your browser.
+- It is hosted using firebase at [theo-connect4](https://theo-connect4.web.app/)
+- To run locally, open the index.html file
 - You can configure a few things in the sketch.js file.
     - starting player
     - number of human players (0, 1 or 2)

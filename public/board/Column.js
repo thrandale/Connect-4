@@ -9,7 +9,7 @@ let Column = function (x) {
 
     // add the squares to the column
     for (let i = 0; i < rows; i++) {
-        this.rows.push(new Square(this.x, i * height / rows));
+        this.rows.push(new Square(this.x, (i * (height - topBarHeight) / rows) + topBarHeight));
     }
 }
 
