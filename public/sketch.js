@@ -4,6 +4,8 @@ const rows = 6;
 const columns = 7;
 let topBarHeight;
 
+let currentScene = "play";
+
 // the board
 let board = [];
 
@@ -102,34 +104,50 @@ function draw() {
   for (let i = 1; i < 4; i++) {
     rect(width - width / 7 + width / 24, topBarHeight / 9 * i * 2, settingsWidth, settingsHeight, 10, 10);
   }
+
+  if (currentScene == "settings") {
+    // draw the settings
+    fill(66, 77, 82);
+    rect(width / 4 * 3, topBarHeight, width / 4, height / 2, 10, 10);
+  }
 }
 
 
 function mouseClicked() {
-  if (numPlayers == 0) {
-    // ai plays against itself
-    while (winner == "") {
-      aiPlay(player1);
-      for (let i = 0; i < columns; i++) {
-        board[i].draw();
-      }
-      aiPlay(player2);
+  if (mouseX > width - width / 7 + width / 24 && mouseX < width - width / 24 && mouseY > topBarHeight / 9 * 2 && mouseY < topBarHeight - topBarHeight / 9 * 2) {
+    if (currentScene == "play") {
+      currentScene = "settings";
     }
-  } else if (numPlayers == 1) {
-    // human plays
-    if (mouseY > topBarHeight) {
+    else {
+      currentScene = "play";
+    }
+  }
+  if (currentScene == "play") {
+    if (numPlayers == 0) {
+      // ai plays against itself
+      while (winner == "") {
+        aiPlay(player1);
+        for (let i = 0; i < columns; i++) {
+          board[i].draw();
+        }
+        aiPlay(player2);
+      }
+    } else if (numPlayers == 1) {
+      // human plays
+      if (mouseY > topBarHeight) {
+        playerPlay();
+
+        for (let i = 0; i < columns; i++) {
+          board[i].draw();
+        }
+
+        // ai plays
+        aiPlay(player2);
+      }
+    } else {
+      // two human players
       playerPlay();
-
-      for (let i = 0; i < columns; i++) {
-        board[i].draw();
-      }
-
-      // ai plays
-      aiPlay(player2);
     }
-  } else {
-    // two human players
-    playerPlay();
   }
 }
 
