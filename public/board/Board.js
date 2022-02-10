@@ -44,18 +44,17 @@ class Board {
     }
 
     drop(column) {
-        this.columns[column].onClick();
+        this.columns[column].onClick(column);
+        this.changePlayer();
     }
 
     humanPlay() {
         let column = floor(mouseX / (width / COLUMNS));
         this.drop(column);
-        this.changePlayer();
     }
 
     aiPlay() {
         this.drop(bestMove(this.currentPlayer));
-        this.changePlayer();
     }
 
     changePlayer() {

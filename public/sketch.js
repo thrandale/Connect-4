@@ -123,7 +123,6 @@ function mouseClicked() {
 mousePressed = function () {
   if (currentScene == "win" && mouseIsInCanvas()) {
     if (mouseX > settingsMenu.reviewX && mouseX < settingsMenu.reviewX + settingsMenu.reviewW && mouseY > settingsMenu.reviewY && mouseY < settingsMenu.reviewY + settingsMenu.reviewH) {
-      print("reviewing");
       reviewing = true;
       currentScene = "play";
     }
