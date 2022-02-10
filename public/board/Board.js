@@ -44,7 +44,7 @@ class Board {
     }
 
     drop(column) {
-        this.columns[column].onClick(column);
+        this.columns[column].onDrop(column);
         this.changePlayer();
     }
 
