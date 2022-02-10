@@ -1,8 +1,6 @@
 html, body {
-  margin: 50;
-  padding: 0;
-}
-
-canvas {
-  display: block;
+  margin: 10;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
