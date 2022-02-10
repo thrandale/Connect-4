@@ -18,8 +18,8 @@
 | Check                | Score |
 | -------------------: | :---: |
 | Win                  | 100   |
-| Center Column        | 7     |
-| Center Column Height | 2     |
+| Center Column        | 8     |
+| Center Column Height | 1.2   |
 | Bar of 2             | 3     |
 | Bar of 3             | 4     |
 | Adjacent Piece       | 1     |
