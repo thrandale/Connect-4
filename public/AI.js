@@ -1,3 +1,16 @@
+let winScore = 100;
+let centerColumnScore = 8;
+let centerColumnHeight = 1.1;
+let TwoBarScore = 3;
+let ThreeBarScore = 4;
+let TwoBarScoreBlock = 3;
+let ThreeBarScoreBlock = 4;
+let adjacentScore = 1;
+let depthScore = 2;
+let tolerance = 1;
+
+let depth = 3;
+
 let bestMove = function (player) {
     let bestMove;
     let bestScore = -Infinity;
@@ -7,7 +20,6 @@ let bestMove = function (player) {
 
     // the number of possible moves that have been checked
     iterations = 0;
-
     // set the opponent
     switch (player) {
         case player2:
@@ -19,14 +31,14 @@ let bestMove = function (player) {
     }
 
     // get the best move
-    for (let i = 0; i < board.length; i++) {
+    for (let i = 0; i < COLUMNS; i++) {
         // if column is available, play in it.
-        for (let j = board[i].rows.length - 1; j >= 0; j--) {
-            if (board[i].rows[j].player == "") {
+        for (let j = ROWS - 1; j >= 0; j--) {
+            if (board.columns[i].rows[j].player == "") {
                 currentIterations = 0;
 
                 // play the piece
-                board[i].rows[j].player = player;
+                board.columns[i].rows[j].player = player;
                 lastDrop.column = i;
                 lastDrop.row = j;
 
@@ -44,7 +56,7 @@ let bestMove = function (player) {
                 }
 
                 // undo the move
-                board[i].rows[j].player = "";
+                board.columns[i].rows[j].player = "";
 
                 // if multiple moves are within the tolerance, choose a random one
                 if (score >= bestScore - tolerance && score <= bestScore + tolerance) {
@@ -62,21 +74,13 @@ let bestMove = function (player) {
         }
     }
 
-    // play the ai's move
-    board[bestMove.column].rows[bestMove.row].player = player;
-    lastDrop.row = bestMove.row;
-    lastDrop.column = bestMove.column;
-
     // debug prints
     if (debug)
         print("Iterations: " + iterations);
 
-    // check for a winner
-    if (checkWinner(lastDrop) != "")
-        winner = checkWinner(lastDrop);
+    winner = board.checkWinner(bestMove);
 
-    // change to the next player
-    currentPlayer = opponent;
+    return bestMove.column;
 }
 
 let minimax = function (board, lastDrop, depth, alpha, beta, isMaximizing, player, opponent) {
@@ -87,7 +91,7 @@ let minimax = function (board, lastDrop, depth, alpha, beta, isMaximizing, playe
     let dropTmp = { row: 0, col: 0 };
 
     // // check for win and return result
-    let result = checkWinner(lastDrop);
+    let result = board.checkWinner(lastDrop);
 
     if (result != "") {
         switch (result) {
@@ -111,12 +115,12 @@ let minimax = function (board, lastDrop, depth, alpha, beta, isMaximizing, playe
 
     if (isMaximizing) {
         bestScore = -Infinity;
-        for (let i = 0; i < board.length; i++) {
+        for (let i = 0; i < COLUMNS; i++) {
             // if column is available, play in it.
-            for (let j = board[i].rows.length - 1; j >= 0; j--) {
-                if (board[i].rows[j].player == "") {
+            for (let j = board.columns[i].rows.length - 1; j >= 0; j--) {
+                if (board.columns[i].rows[j].player == "") {
                     // play the piece
-                    board[i].rows[j].player = player;
+                    board.columns[i].rows[j].player = player;
                     dropTmp.column = i;
                     dropTmp.row = j;
                     score = minimax(board, dropTmp, depth - 1, alpha, beta, !isMaximizing, player, opponent)
@@ -124,7 +128,7 @@ let minimax = function (board, lastDrop, depth, alpha, beta, isMaximizing, playe
                     //alpha beta pruning
                     alpha = max(alpha, score);
 
-                    board[i].rows[j].player = "";
+                    board.columns[i].rows[j].player = "";
 
                     if (score >= bestScore - .5 && score <= bestScore + .5) {
                         let rand = round(random(0, 1));
@@ -144,12 +148,12 @@ let minimax = function (board, lastDrop, depth, alpha, beta, isMaximizing, playe
         return bestScore;
     } else {
         bestScore = Infinity;
-        for (let i = 0; i < board.length; i++) {
+        for (let i = 0; i < COLUMNS; i++) {
             // if column is available, play in it.
-            for (let j = board[i].rows.length - 1; j >= 0; j--) {
-                if (board[i].rows[j].player == "") {
+            for (let j = board.columns[i].rows.length - 1; j >= 0; j--) {
+                if (board.columns[i].rows[j].player == "") {
                     // play the piece
-                    board[i].rows[j].player = opponent;
+                    board.columns[i].rows[j].player = opponent;
 
                     dropTmp.column = i;
                     dropTmp.row = j;
@@ -159,7 +163,7 @@ let minimax = function (board, lastDrop, depth, alpha, beta, isMaximizing, playe
                     // alpha beta pruning
                     beta = min(beta, score);
 
-                    board[i].rows[j].player = "";
+                    board.columns[i].rows[j].player = "";
                     if (score >= bestScore - .5 && score <= bestScore + .5) {
                         let rand = round(random(0, 1));
                         if (rand == 0) {
@@ -194,7 +198,7 @@ let evaluation = function (lastDrop, depth = 0) {
 
 
 let prioritizeCenter = function (lastDrop) {
-    if (lastDrop.column == floor(board.length / 2)) {
+    if (lastDrop.column == floor(COLUMNS / 2)) {
         return centerColumnScore * (lastDrop.row + 1) / centerColumnHeight;
     }
     else
@@ -211,7 +215,7 @@ let checkBar = function (lastDrop) {
     let opponentCount = 0;
     let emptyCount = 0;
 
-    let checkPlayer = board[lastDrop.column].rows[lastDrop.row].player;
+    let checkPlayer = board.columns[lastDrop.column].rows[lastDrop.row].player;
     let checkOpponent;
 
     if (checkPlayer == player1)
@@ -221,9 +225,9 @@ let checkBar = function (lastDrop) {
 
     // these are the minimum and maximum rows- and columns that we have to check for the win condition
     let minCol = max(lastDrop.column - 3, 0);
-    let maxCol = min(lastDrop.column + 3, board.length - 1);
+    let maxCol = min(lastDrop.column + 3, COLUMNS - 1);
     let minRow = max(lastDrop.row - 3, 0);
-    let maxRow = min(lastDrop.row + 3, board[0].rows.length - 1);
+    let maxRow = min(lastDrop.row + 3, board.columns[0].rows.length - 1);
 
     //For each win direction, just check the slice that the last piece lastDropped is in
 
@@ -234,11 +238,11 @@ let checkBar = function (lastDrop) {
         emptyCount = 0;
         opponentCount = 0;
         for (let j = 0; j <= 3; j++) {
-            if (board[i + j].rows[lastDrop.row].player == checkPlayer)
+            if (board.columns[i + j].rows[lastDrop.row].player == checkPlayer)
                 playerCount++;
 
-            else if (board[i + j].rows[lastDrop.row].player == checkOpponent) {
-                //print(board[i + j].rows[lastDrop.row].player);
+            else if (board.columns[i + j].rows[lastDrop.row].player == checkOpponent) {
+                //print(board.columns[i + j].rows[lastDrop.row].player);
                 opponentCount++;
             }
             else
@@ -269,9 +273,9 @@ let checkBar = function (lastDrop) {
         emptyCount = 0;
         opponentCount = 0;
         for (let j = 0; j <= 3; j++) {
-            if (board[lastDrop.column].rows[i + j].player == checkPlayer)
+            if (board.columns[lastDrop.column].rows[i + j].player == checkPlayer)
                 playerCount++;
-            else if (board[lastDrop.column].rows[i + j].player == checkOpponent) {
+            else if (board.columns[lastDrop.column].rows[i + j].player == checkOpponent) {
 
                 opponentCount++;
             }
@@ -306,9 +310,9 @@ let checkBar = function (lastDrop) {
             emptyCount = 0;
             opponentCount = 0;
             for (let i = 0; i <= 3; i++) {
-                if (board[currentCol + i].rows[currentRow + i].player == checkPlayer)
+                if (board.columns[currentCol + i].rows[currentRow + i].player == checkPlayer)
                     playerCount++;
-                else if (board[currentCol + i].rows[currentRow + i].player == checkOpponent)
+                else if (board.columns[currentCol + i].rows[currentRow + i].player == checkOpponent)
                     opponentCount++;
                 else
                     emptyCount++;
@@ -342,9 +346,9 @@ let checkBar = function (lastDrop) {
             emptyCount = 0;
             opponentCount = 0;
             for (let i = 0; i <= 3; i++) {
-                if (board[currentCol - i].rows[currentRow + i].player == checkPlayer)
+                if (board.columns[currentCol - i].rows[currentRow + i].player == checkPlayer)
                     playerCount++;
-                else if (board[currentCol - i].rows[currentRow + i].player == checkOpponent)
+                else if (board.columns[currentCol - i].rows[currentRow + i].player == checkOpponent)
                     opponentCount++;
                 else
                     emptyCount++;
@@ -375,19 +379,19 @@ let checkBar = function (lastDrop) {
 let checkAdjacent = function (lastDrop) {
     let score = 0;
     if (lastDrop.row > 0) {
-        if (board[lastDrop.column].rows[lastDrop.row - 1].player == board[lastDrop.column].rows[lastDrop.row].player)
+        if (board.columns[lastDrop.column].rows[lastDrop.row - 1].player == board.columns[lastDrop.column].rows[lastDrop.row].player)
             score += adjacentScore;
     }
-    if (lastDrop.column < board.length - 1) {
-        if (board[lastDrop.column + 1].rows[lastDrop.row].player == board[lastDrop.column].rows[lastDrop.row].player)
+    if (lastDrop.column < COLUMNS - 1) {
+        if (board.columns[lastDrop.column + 1].rows[lastDrop.row].player == board.columns[lastDrop.column].rows[lastDrop.row].player)
             score += adjacentScore;
     }
-    if (lastDrop.row < board[0].length - 1) {
-        if (board[lastDrop.column].rows[lastDrop.row + 1].player == board[lastDrop.column].rows[lastDrop.row].player)
+    if (lastDrop.row < board.columns[0].length - 1) {
+        if (board.columns[lastDrop.column].rows[lastDrop.row + 1].player == board.columns[lastDrop.column].rows[lastDrop.row].player)
             score += adjacentScore;
     }
     if (lastDrop.column > 0) {
-        if (board[lastDrop.column - 1].rows[lastDrop.row].player == board[lastDrop.column].rows[lastDrop.row].player)
+        if (board.columns[lastDrop.column - 1].rows[lastDrop.row].player == board.columns[lastDrop.column].rows[lastDrop.row].player)
             score += adjacentScore;
     }
     return score;
