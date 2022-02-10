@@ -21,14 +21,7 @@ let bestMove = function (player) {
     // the number of possible moves that have been checked
     iterations = 0;
     // set the opponent
-    switch (player) {
-        case player2:
-            opponent = player1;
-            break;
-        case player1:
-            opponent = player2;
-            break;
-    }
+    opponent = player == player1 ? player2 : player1;
 
     // get the best move
     for (let i = 0; i < COLUMNS; i++) {

@@ -21,7 +21,7 @@ class Column {
         }
     }
 
-    onClick(column) {
+    onDrop(column) {
         // if the column is clicked, drop a piece unless the column is full
         for (let i = this.rows.length - 1; i >= 0; i--) {
             if (this.rows[i].player == "") {
