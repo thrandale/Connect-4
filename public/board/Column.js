@@ -27,13 +27,12 @@ class Column {
             if (this.rows[i].player == "") {
                 this.rows[i].player = board.currentPlayer;
                 let currentDrop = new Drop(floor(this.x / width * COLUMNS), i);
-                if (board.checkWinner(currentDrop) != "")
-                    winner = board.checkWinner(currentDrop);
+                winner = board.checkWinner(currentDrop);
                 break;
             }
         }
     }
-    
+
     reset() {
         // reset the column
         for (let i = 0; i < this.rows.length; i++) {

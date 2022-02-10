@@ -78,8 +78,6 @@ let bestMove = function (player) {
     if (debug)
         print("Iterations: " + iterations);
 
-    winner = board.checkWinner(bestMove);
-
     return bestMove.column;
 }
 

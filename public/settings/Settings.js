@@ -25,7 +25,7 @@ class Settings {
             noStroke();
             fill(COLOR_HIGHLIGHT);
             textSize(width / 10);
-            text(winner == "tie" ? "It's a tie!" : "Player " + winner == "red" ? "Blue Player" : "Red Player" + " wins!", width / 2, height / 8);
+            text(winner == "tie" ? "It's a tie!" : (winner == "red" ? "Red" : "Blue") + " player wins!", width / 2, height / 8);
 
             fill(COLOR_HIGHLIGHT);
             stroke(COLOR_GRAY);

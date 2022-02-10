@@ -141,6 +141,7 @@ class Board {
                 available++;
             }
         }
+
         if (available == 0)
             return "tie";
 
