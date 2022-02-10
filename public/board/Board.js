@@ -58,11 +58,7 @@ class Board {
     }
 
     changePlayer() {
-        if (this.currentPlayer == player1) {
-            this.currentPlayer = player2;
-        } else {
-            this.currentPlayer = player1;
-        }
+        this.currentPlayer = this.currentPlayer == player1 ? player2 : player1;
     }
 
     checkWinner(lastDrop) {
