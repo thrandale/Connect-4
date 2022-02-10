@@ -84,12 +84,7 @@ function mouseClicked() {
 
   // open and close the settings menu if clicking on the settings bar
   if (mouseX > width - width / 7 + width / 24 && mouseX < width - width / 24 && mouseY > topBarHeight / 9 * 2 && mouseY < topBarHeight - topBarHeight / 9 * 2) {
-    if (currentScene == "play") {
-      currentScene = "settings";
-    }
-    else {
-      currentScene = "play";
-    }
+    currentScene = currentScene == "play" ? "settings" : "play";
   }
 
   // if in the play scene and the mouse is clicked
