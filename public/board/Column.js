@@ -2,42 +2,54 @@
 A Column of the board made up of squares
 */
 
-class Column {
-    constructor(x) {
-        this.x = x;
-        this.rows = [];
-        this.size = width / COLUMNS;
+export default class Column {
+    #x
+    #rows
+    #ROWS
+    constructor(x, rows) {
+        this.#x = x;
+        this.#rows = [];
+        this.#ROWS = rows;
 
         // add the squares to the column
-        for (let i = 0; i < ROWS; i++) {
-            this.rows.push(new Square(this.x, (i * (height - topBarHeight) / ROWS) + topBarHeight));
+        for (let i = 0; i < this.#ROWS; i++) {
+            this.#rows.push(null);
         }
     }
 
-    draw() {
-        // draw squares
-        for (let i = 0; i < this.rows.length; i++) {
-            this.rows[i].draw();
-        }
-    }
-
-    onDrop(column) {
+    onDrop(column, player) {
         // if the column is clicked, drop a piece unless the column is full
-        for (let i = this.rows.length - 1; i >= 0; i--) {
-            if (this.rows[i].player == "") {
-                this.rows[i].player = board.currentPlayer;
-                let currentDrop = new Drop(column, i);
-                winner = board.checkWinner(currentDrop);
-                break;
+        let row = this.getRow();
+        if (row === null) return;
+        this.#rows[row] = player;
+        let currentDrop = { row: row, column: column };
+    }
+
+    getRow() {
+        for (let i = this.#rows.length - 1; i >= 0; i--) {
+            if (this.#rows[i] === null) {
+                return i;
             }
         }
+        return null;
+    }
+
+    isFull() {
+        if (this.#rows[0] !== null) {
+            return false;
+        }
+        return true;
     }
 
     reset() {
         // reset the column
-        for (let i = 0; i < this.rows.length; i++) {
-            this.rows[i].player = "";
+        for (let i = 0; i < this.#rows.length; i++) {
+            this.#rows[i] = null;
         }
+    }
+
+    get rows() {
+        return this.#rows;
     }
 }
 
