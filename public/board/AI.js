@@ -15,6 +15,7 @@ export default class AI {
     #ROWS
     #COLUMNS
     #iterations
+    
 
     constructor(rows, columns) {
         this.#ROWS = rows;
