@@ -8,19 +8,22 @@
   <title>🔵Connect 4🔴</title>
 
   <link rel="stylesheet" type="text/css" href="style.css">
-
-  <script src="libraries/p5.min.js"></script>
-  <script src="AI.js"></script>
-  <script src="board/Square.js"></script>
-  <script src="board/Drop.js"></script>
-  <script src="board/Column.js"></script>
-  <script src="board/Board.js"></script>
-  <script src="settings/Toggle.js"></script>
-  <script src="settings/Settings.js"></script>
+  <script src="script.js" type="module"></script>
 </head>
 
-<body style="background-color:rgb(39, 39, 39);">
-  <script src="sketch.js"></script>
+<body>
+  <div id="game-board">
+    <div id="top-bar">
+      Connect 4
+      <button id="settings">
+        <div class="setting-bar"></div>
+        <div class="setting-bar"></div>
+        <div class="setting-bar"></div>
+      </button>
+    </div>
+    <div id="pieces"></div>
+    <div id="squares"></div>
+  </div>
 </body>
 
 </html>
