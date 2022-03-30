@@ -1,20 +1,24 @@
 
 
 export default class AI {
-    #WIN_SCORE = 100;
-    #CENTER_COLUMN_SCORE = 8;
-    #CENTER_COLUMN_HEIGHT = 1.2;
-    #TWO_BAR_SCORE = 3;
-    #THREE_BAR_SCORE = 4;
-    #TWO_BAR_SCORE_BLOCK = 3;
-    #THREE_BAR_SCORE_BLOCK = 4;
-    #ADJACENT_SCORE = 1;
-    #DEPTH_SCORE = 2;
-    #TOLERANCE = 1;
-    #DEPTH = 5;
+    #winScore = 100;
+    #tolerance = 1;
+
+    #centerColumnScore = 0;
+    #centerColumnHeight = 0;
+    #twoBarScore = 0;
+    #threeBarScore = 0;
+    #twoBarScoreBlock = 0;
+    #threeBarScoreBlock = 0;
+    #adjacentScore = 0;
+    #depthScore = 0;
+    #depth = 0;
+
+    #difficulty = 2;
     #ROWS
     #COLUMNS
     #iterations
+    #DEBUG = false;
 
     constructor(rows, columns) {
         this.#ROWS = rows;
@@ -24,6 +28,7 @@ export default class AI {
     bestMove(board, player) {
         let bestMove;
         let bestScore = -Infinity;
+        let bestMoves = [];
         let score = 0;
         let lastDrop = { row: 0, column: 0, player: null };
         let opponent = player === "red" ? "blue" : "red";
@@ -43,27 +48,24 @@ export default class AI {
                     lastDrop.player = player;
 
                     // get the score
-                    score = this.#minimax(board, lastDrop, this.#DEPTH, -Infinity, Infinity, false, player, opponent);
+                    score = this.#minimax(board, lastDrop, this.#depth, -Infinity, Infinity, false, player, opponent);
 
                     // only evaluate move farther if it is not a winning or losing score
-                    if (score < this.#WIN_SCORE && score > -this.#WIN_SCORE) {
+                    if (score < this.#winScore && score > -this.#winScore) {
                         score += this.#evaluation(lastDrop, board);
                     }
 
-                    console.log("Col: " + lastDrop.column + ", Score: " + Math.round(score, 2));
+                    if (this.#DEBUG) console.log(`Col: ${lastDrop.column}, Score: ${Math.round(score, 2)}`);
 
                     // undo the move
                     board.columns[i].rows[j] = null;
 
-                    // if multiple moves are within the this.#TOLERANCE, choose a random one
-                    if (score >= (bestScore - this.#TOLERANCE) && score <= (bestScore + this.#TOLERANCE)) {
-                        let rand = Math.round(Math.random());
-                        if (rand === 0) {
-                            bestScore = score;
-                            bestMove = { row: j, column: i };
-                        }
+                    // if the score is within the tolerance, add it to the best moves
+                    if (score >= (bestScore - this.#tolerance) && score <= (bestScore + this.#tolerance)) {
+                        bestMoves.push(i);
                     } else if (score > bestScore) {
                         bestScore = score;
+                        bestMoves = [i];
                         bestMove = { row: j, column: i };
                     }
                     break;
@@ -71,7 +73,15 @@ export default class AI {
             }
         }
 
-        console.log("Iterations: " + this.#iterations + "\n\n");
+        if (this.#DEBUG) {
+            console.log(`Depth: ${this.#depth}`);
+            console.log(`Iterations: ${this.#iterations}\n\n`);
+        }
+
+        // if multiple moves are within the tolerance, choose a random one
+        if (bestMoves.length > 1) {
+            return bestMoves[Math.floor(Math.random() * bestMoves.length)];
+        }
 
         return bestMove.column;
     }
@@ -84,14 +94,14 @@ export default class AI {
         let dropTmp = { row: 0, col: 0, player: null };
 
         // // check for win and return result
-        let result = board.checkWinner(lastDrop);
+        let result = board.checkWinner(lastDrop.column);
 
         if (result !== null) {
             switch (result) {
                 case player:
-                    return this.#WIN_SCORE + this.#evaluateDepth(depth);
+                    return this.#winScore + this.#evaluateDepth(depth);
                 case opponent:
-                    return -this.#WIN_SCORE - this.#evaluateDepth(depth);
+                    return -this.#winScore - this.#evaluateDepth(depth);
                 case "tie":
                     return 0;
             }
@@ -183,6 +193,8 @@ export default class AI {
     #evaluation(lastDrop, board, depth = 0) {
         let score = 0;
 
+        if (this.#difficulty === 0) return score;
+
         score += this.#prioritizeCenter(lastDrop);
         //score += checkAdjacent(lastDrop);
         score += this.#checkBar(lastDrop, board);
@@ -194,14 +206,14 @@ export default class AI {
 
     #prioritizeCenter(lastDrop) {
         if (lastDrop.column === Math.floor(this.#COLUMNS / 2)) {
-            return this.#CENTER_COLUMN_SCORE * (lastDrop.row + 1) / this.#CENTER_COLUMN_HEIGHT;
+            return this.#centerColumnScore * (lastDrop.row + 1) / this.#centerColumnHeight;
         }
         else
             return 0;
     }
 
     #evaluateDepth(depth) {
-        return depth * this.#DEPTH_SCORE;
+        return depth * this.#depthScore;
     }
 
     #checkBar(lastDrop, board) {
@@ -240,9 +252,9 @@ export default class AI {
             }
             if (playerCount + emptyCount >= 4) {
                 if (playerCount === 3) {
-                    score += this.#THREE_BAR_SCORE;
+                    score += this.#threeBarScore;
                 } else if (playerCount === 2) {
-                    score += this.#TWO_BAR_SCORE;
+                    score += this.#twoBarScore;
                 }
             }
             if (opponentCount + emptyCount >= 3) {
@@ -275,9 +287,9 @@ export default class AI {
             }
             if (playerCount + emptyCount >= 4) {
                 if (playerCount === 3) {
-                    score += this.#THREE_BAR_SCORE;
+                    score += this.#threeBarScore;
                 } else if (playerCount === 2) {
-                    score += this.#TWO_BAR_SCORE;
+                    score += this.#twoBarScore;
                 }
             }
             if (opponentCount + emptyCount >= 3) {
@@ -309,9 +321,9 @@ export default class AI {
                 }
                 if (playerCount + emptyCount >= 4) {
                     if (playerCount === 3) {
-                        score += this.#THREE_BAR_SCORE;
+                        score += this.#threeBarScore;
                     } else if (playerCount === 2) {
-                        score += this.#TWO_BAR_SCORE;
+                        score += this.#twoBarScore;
                     }
                 }
                 if (opponentCount + emptyCount >= 3) {
@@ -345,9 +357,9 @@ export default class AI {
                 }
                 if (playerCount + emptyCount >= 4) {
                     if (playerCount === 3) {
-                        score += this.#THREE_BAR_SCORE;
+                        score += this.#threeBarScore;
                     } else if (playerCount === 2) {
-                        score += this.#TWO_BAR_SCORE;
+                        score += this.#twoBarScore;
                     }
                 }
                 if (opponentCount + emptyCount >= 3) {
@@ -370,20 +382,42 @@ export default class AI {
         let score = 0;
         if (lastDrop.row > 0) {
             if (board.columns[lastDrop.column].rows[lastDrop.row - 1] === board.columns[lastDrop.column].rows[lastDrop.row])
-                score += this.#ADJACENT_SCORE;
+                score += this.#adjacentScore;
         }
         if (lastDrop.column < this.#COLUMNS - 1) {
             if (board.columns[lastDrop.column + 1].rows[lastDrop.row] === board.columns[lastDrop.column].rows[lastDrop.row])
-                score += this.#ADJACENT_SCORE;
+                score += this.#adjacentScore;
         }
         if (lastDrop.row < board.columns[0].length - 1) {
             if (board.columns[lastDrop.column].rows[lastDrop.row + 1] === board.columns[lastDrop.column].rows[lastDrop.row])
-                score += this.#ADJACENT_SCORE;
+                score += this.#adjacentScore;
         }
         if (lastDrop.column > 0) {
             if (board.columns[lastDrop.column - 1].rows[lastDrop.row] === board.columns[lastDrop.column].rows[lastDrop.row])
-                score += this.#ADJACENT_SCORE;
+                score += this.#adjacentScore;
         }
         return score;
+    }
+
+    setDifficulty(difficulty) {
+        this.#difficulty = difficulty;
+        switch (this.#difficulty) {
+            case 0:
+                this.#depth = 2;
+                break;
+            case 1:
+
+            case 2:
+                this.#centerColumnScore = 8;
+                this.#centerColumnHeight = 1.2;
+                this.#twoBarScore = 3;
+                this.#threeBarScore = 4;
+                this.#twoBarScoreBlock = 3;
+                this.#threeBarScoreBlock = 4;
+                this.#adjacentScore = 1;
+                this.#depthScore = 2;
+                this.#depth = 5;
+                break;
+        }
     }
 }

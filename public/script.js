@@ -5,27 +5,104 @@ const squares = document.getElementById('squares');
 const pieces = document.getElementById('pieces');
 const ROWS = 6;
 const COLUMNS = 7;
-const board = new Board(ROWS, COLUMNS, "blue");
+const board = new Board(ROWS, COLUMNS);
 const playerPiece = document.createElement('div');
-let numHumanPlayers = 1;
+const settingsButton = document.getElementById('settings-button');
+const settingsMenu = document.getElementById('settings-menu');
+const newGameButton = document.getElementById('new-game');
+let abortController = null;
 
 init();
 
 function init() {
     createBoard();
     createPlayerPiece();
-    play();
+    activateSettingsButton();
+    activateNewGameButton();
+    reset();
+}
+
+function activateSettingsButton() {
+    settingsButton.addEventListener('click', () => {
+        settingsMenu.classList.toggle('hidden');
+        if (!settingsMenu.classList.contains('hidden')) {
+            if (abortController) {
+                abortController.abort();
+                abortController = null;
+            }
+            document.removeEventListener('mousemove', handleMove);
+        } else {
+            play();
+        }
+    });
+}
+
+function activateNewGameButton() {
+    newGameButton.addEventListener('click', () => {
+        if (abortController) {
+            abortController.abort();
+            abortController = null;
+        }
+        settingsMenu.classList.add('hidden');
+        reset();
+    });
 }
 
 async function play() {
-    if (numHumanPlayers === 1) {
-        await playerPlay();
-        aiPlay();
-    } else if (numHumanPlayers === 2) {
-        await playerPlay();
+    if (board.numHumanPlayers === 1) {
+        document.addEventListener('mousemove', handleMove);
+        abortController = new AbortController();
+
+        try {
+            await playerPlay(abortController.signal);
+        } catch (e) {
+            if (e.message === 'Invalid drop') {
+                return play();
+            } else {
+                return;
+            }
+        }
+        if (board.winner) {
+            console.log(board.winner);
+            return reset();
+        }
+        await aiPlay();
+        if (board.winner) {
+            console.log(board.winner);
+            return reset();
+        }
+        play();
+    } else if (board.numHumanPlayers === 2) {
+        document.addEventListener('mousemove', handleMove);
+        abortController = new AbortController();
+
+        try {
+            await playerPlay(abortController.signal);
+        } catch (e) {
+            if (e.message === 'Invalid drop') {
+                return play();
+            } else {
+                return;
+            }
+        }
+        if (board.winner) {
+            console.log(board.winner);
+            return reset();
+        }
         play();
     } else {
-        aiPlay();
+        abortController = new AbortController();
+        try {
+            await aiPlay(abortController.signal);
+        }
+        catch (e) {
+            return reset();
+        }
+        if (board.winner) {
+            console.log(board.winner);
+            return reset();
+        }
+        play();
     }
 }
 
@@ -46,11 +123,6 @@ function createBoard() {
         } if (i >= COLUMNS * (ROWS - 1)) {
             square.classList.add('bottom');
         }
-
-        const squareInner = document.createElement('div');
-        squareInner.classList.add('square-inner');
-        squareInner.setAttribute('data-column', i % COLUMNS);
-        square.append(squareInner);
         squares.append(square);
     }
 }
@@ -78,26 +150,33 @@ function addPiece(x, y, player) {
     });
 }
 
-async function playerPlay() {
-    document.addEventListener('mousemove', handleMove);
-    return new Promise(resolve => {
-        document.addEventListener('click', async function (e) {
+async function playerPlay(abortSignal) {
+    return new Promise(async (resolve, reject) => {
+        squares.addEventListener('click', async (e) => {
             try {
-                await handleClick(e);
-                resolve();
+                await handleClick(e, abortSignal);
             } catch (e) {
-                play();
+                return reject(e);
             }
+
+            resolve();
         }, { once: true });
     });
 }
 
-async function aiPlay() {
-    const move = board.getBestMove();
-    await dropPiece(move, board.currentPlayer);
-    board.drop(move);
-    switchPlayer();
-    play();
+async function aiPlay(abortSignal) {
+    return new Promise(async (resolve, reject) => {
+        if (abortSignal) {
+            if (abortSignal.aborted) {
+                return reject();
+            }
+        }
+        const move = board.getBestMove();
+        await dropPiece(move, board.currentPlayer);
+        board.drop(move);
+        switchPlayer();
+        resolve();
+    });
 }
 
 function handleMove(e) {
@@ -112,21 +191,26 @@ function handleMove(e) {
     playerPiece.style.transform = `translateX(calc(${column} * (var(--board-size) / 7) + var(--board-size) / 7 / 2 - var(--size) / 2 - var(--border-size) / 4 * var(--x)))`;
 }
 
-async function handleClick(e) {
-    const square = e.target.closest('.square') || e.target.closest('.square-inner');
-    if (!square) return new Promise((resolve, reject) => reject());
+async function handleClick(e, abortSignal) {
+    return new Promise(async (resolve, reject) => {
+        if (abortSignal.aborted) {
+            return reject(e);
+        }
 
-    const column = parseInt(square.getAttribute('data-column'));
-    const player = board.currentPlayer;
+        const square = e.target.closest('.square');
+        const column = parseInt(square.getAttribute('data-column'));
+        const player = board.currentPlayer;
 
-    try {
-        await dropPiece(column, player);
-    } catch (e) {
-        return new Promise((resolve, reject) => reject());
-    }
-    board.drop(column);
-    switchPlayer();
-    return new Promise(resolve => resolve());
+        try {
+            await dropPiece(column, player);
+        } catch (e) {
+            return reject(e);
+        }
+
+        board.drop(column);
+        switchPlayer();
+        resolve();
+    });
 }
 
 function switchPlayer() {
@@ -134,9 +218,47 @@ function switchPlayer() {
 }
 
 function dropPiece(column, player) {
-    const row = board.getRow(column);
-    if (row === null) return new Promise((resolve, reject) => reject());
-    playerPiece.hidden = true;
-    document.removeEventListener('mousemove', handleMove);
-    return addPiece(column, row, player);
+    return new Promise(async (resolve, reject) => {
+        const row = board.getRow(column);
+        if (row === null) return reject(new Error('Invalid drop'));
+
+        playerPiece.hidden = true;
+        document.removeEventListener('mousemove', handleMove);
+        await addPiece(column, row, player);
+        resolve();
+    });
+}
+
+async function reset() {
+    if (abortController) {
+        abortController.abort();
+        abortController = null;
+    }
+
+    let currentPieces = document.getElementsByClassName('piece');
+    for (let i = currentPieces.length - 1; i >= 1; i--) {
+        currentPieces[i].remove();
+    }
+
+    let blueHuman = document.getElementById('blueHuman').checked;
+    let redHuman = document.getElementById('redHuman').checked;
+    board.numHumanPlayers = (blueHuman || redHuman) ? (blueHuman && redHuman ? 2 : 1) : 0;
+    board.startingPlayer = document.getElementById('startBlue').checked ? 'blue' : 'red';
+    board.difficulty = document.getElementById('diff0').checked ? 0 : (document.getElementById('diff1').checked ? 1 : 2);
+
+    playerPiece.setAttribute("data-color", playerStarts());
+    board.reset();
+
+    if (aiStarts()) {
+        await aiPlay();
+    }
+    play();
+}
+
+function playerStarts() {
+    return (document.getElementById('blueHuman').checked || document.getElementById('redHuman').checked) ? board.startingPlayer : (board.startingPlayer === 'blue' ? 'red' : 'blue');
+}
+
+function aiStarts() {
+    return ((document.getElementById('blueAI').checked && document.getElementById('startBlue').checked) || (document.getElementById('redAI').checked && document.getElementById('startRed').checked));
 }
