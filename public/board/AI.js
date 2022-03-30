@@ -403,7 +403,7 @@ export default class AI {
         this.#difficulty = difficulty;
         switch (this.#difficulty) {
             case 0:
-                this.#depth = 2;
+                this.#depth = 1
                 break;
             case 1:
 
