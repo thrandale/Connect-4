@@ -37,6 +37,7 @@ body {
   transform: translateY(5vmin);
   border: var(--border-size) solid var(--color-lightGreen);
   user-select: none;
+  overflow: hidden;
 }
 
 #top-bar {
@@ -68,6 +69,16 @@ body {
   box-shadow: inset 0 0 0 var(--border-size) var(--color-lightGray), 0 0 0 calc(var(--border-size) / 2) var(--color-darkGreen);
 }
 
+.square::after {
+  content: "";
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  box-shadow: 0 0 0 calc(var(--border-size) * 5) var(--color-lightGray);
+  border: var(--color-darkGreen) solid var(--border-size);
+  display: block;
+}
+
 .square.left {
   border-left: none;
 }
@@ -82,14 +93,6 @@ body {
 
 .square.top {
   border-top: none;
-}
-
-.square-inner {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  box-shadow: 0 0 0 calc(var(--border-size) * 5) var(--color-lightGray);
-  border: var(--color-darkGreen) solid var(--border-size);
 }
 
 .piece {
@@ -122,7 +125,7 @@ body {
   transition: transform 100ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-#settings {
+#settings-button {
   cursor: pointer;
   position: absolute;
   align-items: center;
@@ -143,11 +146,126 @@ body {
   height: calc(100%);
   background-color: var(--color-lightGreen);
   border-radius: calc(var(--board-size) / 7 / 2);
+  transition: all 80ms ease-in-out;
+  box-shadow: 0 calc(var(--border-size)) calc(var(--border-size)) var(--color-darkGray);
+}
+
+#settings-button:active>.setting-bar {
+  transform: translateY(calc(var(--border-size) / 2));
+  box-shadow: none;
+}
+
+#settings-menu {
+  position: absolute;
+  width: 50%;
+  height: 50%;
+  top: calc(100% / 7);
+  right: 0;
+  background-color: var(--color-darkGreen);
+  border-radius: 1vmin;
+  border: var(--border-size) solid var(--color-lightGreen);
+  box-shadow: 0 0 var(--border-size) calc(var(--border-size)) var(--color-darkGreen);
+  transform-origin: top right;
+  display: grid;
+  padding-left: 1vmin;
+  padding-right: 1vmin;
+  padding-top: calc(50% / 16);
+  grid-template-columns: 30% 1fr;
+  grid-template-rows: repeat(4, calc(100% / 8));
+  gap: calc(100% / 16);
+  justify-items: center;
+  align-items: center;
   transition: all 200ms ease-in-out;
 }
 
-#settings:hover>.setting-bar {
-  transform: scale(1.1);
+#settings-menu.hidden {
+  transform: scale(0);
+}
+
+.radio {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background-color: var(--color-lightGray);
+  border-radius: calc(var(--board-size) / 7 / 2);
+  border-radius: 1vmin;
+  display: grid;
+  gap: 1%;
+  border: var(--border-size) solid var(--color-lightGreen);
+  box-shadow: inset 0 0 var(--border-size) calc(var(--border-size) / 2) var(--color-darkGreen);
+}
+
+.select2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.select3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+
+.r-label {
+  position: relative;
+  color: var(--color-lightGreen);
+  font-size: 3vmin;
+  font-weight: bold;
+}
+
+.radio input {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  appearance: none;
+  border-radius: .8vmin;
+  outline: none;
+  cursor: pointer;
+  transition: all 300ms ease-in-out;
+}
+
+.radio input:checked {
+  background-color: var(--color-lightGreen);
+  color: var(--color-darkGreen);
+  box-shadow: 0 0 calc(var(--border-size) / 2) calc(var(--border-size) / 2) var(--color-darkGreen);
+}
+
+.radio input {
+  color: var(--color-lightGreen);
+  text-align: center;
+  font-size: 3vmin;
+  padding: 0;
+  font-weight: bold;
+}
+
+.radio input::after {
+  content: attr(label);
+}
+
+.test {
+  width: 100px;
+  height: 100px;
+}
+
+#new-game {
+  width: 50%;
+  height: 70%;
+  grid-column-start: 1;
+  grid-column-end: 3;
+  background-color: var(--color-lightGreen);
+  border: var(--border-size) solid var(--color-lightGray);
+  border-radius: 2vmin;
+  color: var(--color-darkGreen);
+  font-size: 3vmin;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 var(--border-size) calc(var(--border-size)) calc(var(--border-size) / 2) var(--color-darkGray);
+  transform: translateY(calc(var(--border-size) / -1));
+  transition: all 80ms ease-in-out;
+}
+
+#new-game:active {
+  box-shadow: none;
+  transform: translateY(calc(var(--border-size) / -2));
 }
 
 @keyframes drop {
