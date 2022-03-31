@@ -18,7 +18,7 @@ export default class AI {
     #ROWS
     #COLUMNS
     #iterations
-    #DEBUG = false;
+    #DEBUG = true;
 
     constructor(rows, columns) {
         this.#ROWS = rows;
@@ -244,7 +244,6 @@ export default class AI {
                     playerCount++;
 
                 else if (board.columns[i + j].rows[lastDrop.row] === checkOpponent) {
-                    //print(board.columns[i + j].rows[lastDrop.row]);
                     opponentCount++;
                 }
                 else
@@ -259,11 +258,9 @@ export default class AI {
             }
             if (opponentCount + emptyCount >= 3) {
                 if (opponentCount === 2) {
-                    // score += this.#TWO_BAR_SCORE_BLOCK;
+                    score += this.#twoBarScoreBlock;
                 } else if (opponentCount === 1) {
-                    //print(opponentCount);
-                    //print(10);
-                    // score += this.#THREE_BAR_SCORE_BLOCK;
+                    score += this.#threeBarScoreBlock;
                 }
             }
         }
@@ -294,10 +291,9 @@ export default class AI {
             }
             if (opponentCount + emptyCount >= 3) {
                 if (opponentCount === 2) {
-                    // score += this.#TWO_BAR_SCORE_BLOCK;
+                    score += this.#twoBarScoreBlock;
                 } else if (opponentCount === 1) {
-                    //print(11);
-                    // score += this.#THREE_BAR_SCORE_BLOCK;
+                    score += this.#threeBarScoreBlock;
                 }
             }
         }
@@ -328,10 +324,9 @@ export default class AI {
                 }
                 if (opponentCount + emptyCount >= 3) {
                     if (opponentCount === 2) {
-                        //score += this.#TWO_BAR_SCORE_BLOCK;
+                        score += this.#twoBarScoreBlock;
                     } else if (opponentCount === 1) {
-                        //print(12);
-                        //score += this.#THREE_BAR_SCORE_BLOCK;
+                        score += this.#threeBarScoreBlock;
                     }
                 }
                 currentRow++;
@@ -364,10 +359,9 @@ export default class AI {
                 }
                 if (opponentCount + emptyCount >= 3) {
                     if (opponentCount === 2) {
-                        // score += this.#TWO_BAR_SCORE_BLOCK;
+                        score += this.#twoBarScoreBlock;
                     } else if (opponentCount === 1) {
-                        //print(13);
-                        // score += this.#THREE_BAR_SCORE_BLOCK;
+                        score += this.#threeBarScoreBlock;
                     }
                 }
                 currentRow++;
@@ -412,8 +406,8 @@ export default class AI {
                 this.#centerColumnHeight = 1.2;
                 this.#twoBarScore = 3;
                 this.#threeBarScore = 4;
-                this.#twoBarScoreBlock = 3;
-                this.#threeBarScoreBlock = 4;
+                this.#twoBarScoreBlock = 2;
+                this.#threeBarScoreBlock = 3;
                 this.#adjacentScore = 1;
                 this.#depthScore = 2;
                 this.#depth = 5;

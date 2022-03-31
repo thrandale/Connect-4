@@ -63,12 +63,12 @@ async function play() {
             }
         }
         if (board.winner) {
-            console.log(board.winner);
+            await showWinner();
             return reset();
         }
         await aiPlay();
         if (board.winner) {
-            console.log(board.winner);
+            await showWinner();
             return reset();
         }
         play();
@@ -86,7 +86,7 @@ async function play() {
             }
         }
         if (board.winner) {
-            console.log(board.winner);
+            await showWinner();
             return reset();
         }
         play();
@@ -99,11 +99,15 @@ async function play() {
             return reset();
         }
         if (board.winner) {
-            console.log(board.winner);
+            await showWinner();
             return reset();
         }
         play();
     }
+}
+
+async function showWinner() {
+    alert(`${board.winner} wins!`);
 }
 
 function createBoard() {
