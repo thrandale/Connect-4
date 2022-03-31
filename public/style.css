@@ -261,7 +261,6 @@ body {
   box-shadow: 0 var(--border-size) calc(var(--border-size)) calc(var(--border-size) / 2) var(--color-darkGray);
   transform: translateY(calc(var(--border-size) / -1));
   transition: all 80ms ease-in-out;
-  /* white-space: nowrap; */
   padding: 0;
 
 }
