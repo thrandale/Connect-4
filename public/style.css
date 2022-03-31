@@ -21,7 +21,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 0;
+  margin: 5vmin;
   padding: 0;
 }
 
@@ -29,12 +29,10 @@ body {
 #game-board {
   width: var(--board-size);
   height: var(--board-size);
+  position: relative;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
   background-color: var(--color-lightGreen);
-  transform: translateY(5vmin);
   border: var(--border-size) solid var(--color-lightGreen);
   user-select: none;
   overflow: hidden;
@@ -159,8 +157,8 @@ body {
   position: absolute;
   width: 50%;
   height: 50%;
-  top: calc(100% / 7);
-  right: 0;
+  top: calc(100% / 7 + var(--border-size) * 2);
+  right: var(--border-size);
   background-color: var(--color-darkGreen);
   border-radius: 1vmin;
   border: var(--border-size) solid var(--color-lightGreen);
