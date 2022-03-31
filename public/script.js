@@ -198,8 +198,10 @@ async function handleClick(e, abortSignal) {
         }
 
         const square = e.target.closest('.square');
-        const column = parseInt(square.getAttribute('data-column'));
+        if (!square) return reject(new Error('Invalid drop'));
+
         const player = board.currentPlayer;
+        const column = parseInt(square.getAttribute('data-column'));
 
         try {
             await dropPiece(column, player);
