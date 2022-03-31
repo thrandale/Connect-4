@@ -10,7 +10,6 @@ export default class AI {
     #threeBarScore = 0;
     #twoBarScoreBlock = 0;
     #threeBarScoreBlock = 0;
-    #adjacentScore = 0;
     #depthScore = 0;
     #depth = 0;
 
@@ -196,9 +195,7 @@ export default class AI {
         if (this.#difficulty === 0) return score;
 
         score += this.#prioritizeCenter(lastDrop);
-        //score += checkAdjacent(lastDrop);
         score += this.#checkBar(lastDrop, board);
-        //score += evaluateDepth(depth);
 
         return score;
     }
@@ -208,8 +205,7 @@ export default class AI {
         if (lastDrop.column === Math.floor(this.#COLUMNS / 2)) {
             return this.#centerColumnScore * (lastDrop.row + 1) / this.#centerColumnHeight;
         }
-        else
-            return 0;
+        else return 0;
     }
 
     #evaluateDepth(depth) {
@@ -372,27 +368,6 @@ export default class AI {
         return score;
     }
 
-    #checkAdjacent(lastDrop) {
-        let score = 0;
-        if (lastDrop.row > 0) {
-            if (board.columns[lastDrop.column].rows[lastDrop.row - 1] === board.columns[lastDrop.column].rows[lastDrop.row])
-                score += this.#adjacentScore;
-        }
-        if (lastDrop.column < this.#COLUMNS - 1) {
-            if (board.columns[lastDrop.column + 1].rows[lastDrop.row] === board.columns[lastDrop.column].rows[lastDrop.row])
-                score += this.#adjacentScore;
-        }
-        if (lastDrop.row < board.columns[0].length - 1) {
-            if (board.columns[lastDrop.column].rows[lastDrop.row + 1] === board.columns[lastDrop.column].rows[lastDrop.row])
-                score += this.#adjacentScore;
-        }
-        if (lastDrop.column > 0) {
-            if (board.columns[lastDrop.column - 1].rows[lastDrop.row] === board.columns[lastDrop.column].rows[lastDrop.row])
-                score += this.#adjacentScore;
-        }
-        return score;
-    }
-
     setDifficulty(difficulty) {
         this.#difficulty = difficulty;
         switch (this.#difficulty) {
@@ -408,7 +383,6 @@ export default class AI {
                 this.#threeBarScore = 4;
                 this.#twoBarScoreBlock = 2;
                 this.#threeBarScoreBlock = 3;
-                this.#adjacentScore = 1;
                 this.#depthScore = 2;
                 this.#depth = 5;
                 break;
