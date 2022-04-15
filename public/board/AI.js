@@ -26,12 +26,12 @@ export default class AI {
 
     bestMove(board, player) {
         let bestMove;
-        let bestScore = -Infinity;
+        let bestScore = this.#difficulty === 0 ? Infinity : -Infinity;
         let bestMoves = [];
         let score = 0;
         let lastDrop = { row: 0, column: 0, player: null };
         let opponent = player === "red" ? "blue" : "red";
-        this.#iterations = 0
+        this.#iterations = 0;
 
         // get the best move
         for (let i = 0; i < this.#COLUMNS; i++) {
@@ -60,12 +60,27 @@ export default class AI {
                     board.columns[i].rows[j] = null;
 
                     // if the score is within the tolerance, add it to the best moves
-                    if (score >= (bestScore - this.#tolerance) && score <= (bestScore + this.#tolerance)) {
-                        bestMoves.push(i);
-                    } else if (score > bestScore) {
-                        bestScore = score;
-                        bestMoves = [i];
-                        bestMove = { row: j, column: i };
+                    if (this.#difficulty !== 0) {
+                        if (score >= (bestScore - this.#tolerance) && score <= (bestScore + this.#tolerance)) {
+                            bestMoves.push(i);
+                        } else if (score > bestScore) {
+                            bestScore = score;
+                            bestMoves = [i];
+                            bestMove = { row: j, column: i };
+                        }
+                    } else {
+                        if (score >= (bestScore - this.#tolerance) && score <= (bestScore + this.#tolerance)) {
+                            bestMoves.push(i);
+                        } else if (score >= this.#winScore) {
+                            bestScore = score;
+                            bestMoves = [i];
+                            bestMove = { row: j, column: i };
+                            break;
+                        } else if (score > -this.#winScore && score < bestScore) {
+                            bestScore = score;
+                            bestMoves = [i];
+                            bestMove = { row: j, column: i };
+                        }
                     }
                     break;
                 }
@@ -80,6 +95,10 @@ export default class AI {
         // if multiple moves are within the tolerance, choose a random one
         if (bestMoves.length > 1) {
             return bestMoves[Math.floor(Math.random() * bestMoves.length)];
+        }
+
+        if (bestMove === undefined) {
+            return Math.floor(Math.random() * this.#COLUMNS);
         }
 
         return bestMove.column;
@@ -192,7 +211,7 @@ export default class AI {
     #evaluation(lastDrop, board, depth = 0) {
         let score = 0;
 
-        if (this.#difficulty === 0) return score;
+        // if (this.#difficulty === 0) return score;
 
         score += this.#prioritizeCenter(lastDrop);
         score += this.#checkBar(lastDrop, board);
@@ -372,7 +391,15 @@ export default class AI {
         this.#difficulty = difficulty;
         switch (this.#difficulty) {
             case 0:
-                this.#depth = 1
+                this.#centerColumnScore = 8;
+                this.#centerColumnHeight = 1.2;
+                this.#twoBarScore = 3;
+                this.#threeBarScore = 4;
+                this.#twoBarScoreBlock = 2;
+                this.#threeBarScoreBlock = 3;
+                this.#depthScore = 2;
+
+                this.#depth = 1;
                 break;
             case 1:
 
@@ -384,6 +411,7 @@ export default class AI {
                 this.#twoBarScoreBlock = 2;
                 this.#threeBarScoreBlock = 3;
                 this.#depthScore = 2;
+                
                 this.#depth = 5;
                 break;
         }
