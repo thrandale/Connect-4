@@ -26,7 +26,7 @@ export default class AI {
 
     bestMove(board, player) {
         let bestMove;
-        let bestScore = this.#difficulty === 0 ? Infinity : -Infinity;
+        let bestScore = -Infinity;
         let bestMoves = [];
         let score = 0;
         let lastDrop = { row: 0, column: 0, player: null };
@@ -60,27 +60,12 @@ export default class AI {
                     board.columns[i].rows[j] = null;
 
                     // if the score is within the tolerance, add it to the best moves
-                    if (this.#difficulty !== 0) {
-                        if (score >= (bestScore - this.#tolerance) && score <= (bestScore + this.#tolerance)) {
-                            bestMoves.push(i);
-                        } else if (score > bestScore) {
-                            bestScore = score;
-                            bestMoves = [i];
-                            bestMove = { row: j, column: i };
-                        }
-                    } else {
-                        if (score >= (bestScore - this.#tolerance) && score <= (bestScore + this.#tolerance)) {
-                            bestMoves.push(i);
-                        } else if (score >= this.#winScore) {
-                            bestScore = score;
-                            bestMoves = [i];
-                            bestMove = { row: j, column: i };
-                            break;
-                        } else if (score > -this.#winScore && score < bestScore) {
-                            bestScore = score;
-                            bestMoves = [i];
-                            bestMove = { row: j, column: i };
-                        }
+                    if (score >= (bestScore - this.#tolerance) && score <= (bestScore + this.#tolerance)) {
+                        bestMoves.push(i);
+                    } else if (score > bestScore) {
+                        bestScore = score;
+                        bestMoves = [i];
+                        bestMove = { row: j, column: i };
                     }
                     break;
                 }
@@ -210,8 +195,6 @@ export default class AI {
 
     #evaluation(lastDrop, board, depth = 0) {
         let score = 0;
-
-        // if (this.#difficulty === 0) return score;
 
         score += this.#prioritizeCenter(lastDrop);
         score += this.#checkBar(lastDrop, board);
@@ -391,18 +374,27 @@ export default class AI {
         this.#difficulty = difficulty;
         switch (this.#difficulty) {
             case 0:
-                this.#centerColumnScore = 8;
+                this.#centerColumnScore = -8;
                 this.#centerColumnHeight = 1.2;
-                this.#twoBarScore = 3;
-                this.#threeBarScore = 4;
-                this.#twoBarScoreBlock = 2;
-                this.#threeBarScoreBlock = 3;
-                this.#depthScore = 2;
+                this.#twoBarScore = -3;
+                this.#threeBarScore = -4;
+                this.#twoBarScoreBlock = -2;
+                this.#threeBarScoreBlock = -3;
+                this.#depthScore = -2;
 
                 this.#depth = 1;
                 break;
             case 1:
+                this.#centerColumnScore = 0;
+                this.#centerColumnHeight = 1.2;
+                this.#twoBarScore = 3;
+                this.#threeBarScore = 4;
+                this.#twoBarScoreBlock = 0;
+                this.#threeBarScoreBlock = 0;
+                this.#depthScore = 2;
 
+                this.#depth = 3;
+                break;
             case 2:
                 this.#centerColumnScore = 8;
                 this.#centerColumnHeight = 1.2;
@@ -411,7 +403,7 @@ export default class AI {
                 this.#twoBarScoreBlock = 2;
                 this.#threeBarScoreBlock = 3;
                 this.#depthScore = 2;
-                
+
                 this.#depth = 5;
                 break;
         }
