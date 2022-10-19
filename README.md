@@ -1,5 +1,4 @@
-# Connect4
-## An AI for connect 4
+# Connect 4 AI
 
 ## How to use
 - It is hosted using firebase at [theo-connect4](https://theo-connect4.web.app/)
