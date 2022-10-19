@@ -1,9 +1,5 @@
 # Connect4
-## An AI for connect 4 written in js and HTML/CSS.
-- Main file is sketch.js
-- AI is implemented in ai.js
-- Classes for the connect4 board are in the 'board' folder.
-
+## An AI for connect 4
 
 ## How to use
 - It is hosted using firebase at [theo-connect4](https://theo-connect4.web.app/)
@@ -12,5 +8,5 @@
 
 ## The AI
 - The AI is a minimax algorithm with alpha-beta pruning.
-- The minimax is going a very low depth, as it is intended to be used on an arduino in the future.
+- The minimax is going a fairly low depth, as it is intended to be used on an arduino.
 - Because of the low search depth, it implements several heuristics to improve the performance.
