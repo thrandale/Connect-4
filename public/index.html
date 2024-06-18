@@ -1,58 +1,65 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
 
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="apple-mobile-web-app-capable" content="yes" />
+    <title>🔵Connect 4🔴</title>
 
-  <title>🔵Connect 4🔴</title>
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <script src="script.js" type="module"></script>
+  </head>
 
-  <link rel="stylesheet" type="text/css" href="style.css">
-  <script src="script.js" type="module"></script>
-</head>
-
-<body>
-  <div id="game-board">
-    <div id="top-bar">
-      Connect 4
-      <button id="settings-button">
-        <div class="setting-bar"></div>
-        <div class="setting-bar"></div>
-        <div class="setting-bar"></div>
-      </button>
+  <body>
+    <div id="game-board">
+      <div id="top-bar">
+        Connect 4
+        <button id="settings-button">
+          <div class="setting-bar"></div>
+          <div class="setting-bar"></div>
+          <div class="setting-bar"></div>
+        </button>
+      </div>
+      <div id="pieces"></div>
+      <div id="squares"></div>
+      <div id="settings-menu" class="hidden">
+        <span class="r-label">Blue</span>
+        <div class="radio select2">
+          <input
+            label="Human"
+            type="radio"
+            name="blue"
+            id="blueHuman"
+            checked
+          />
+          <input label="AI" type="radio" name="blue" id="blueAI" />
+          <div class="slider"></div>
+        </div>
+        <span class="r-label">Red</span>
+        <div class="radio select2">
+          <input label="Human" type="radio" name="red" id="redHuman" />
+          <input label="AI" type="radio" name="red" id="redAI" checked />
+        </div>
+        <span class="r-label">Start</span>
+        <div class="radio select2">
+          <input
+            label="Blue"
+            type="radio"
+            name="start"
+            id="startBlue"
+            checked
+          />
+          <input label="Red" type="radio" name="start" id="startRed" />
+        </div>
+        <span class="r-label">Difficulty</span>
+        <div class="radio select3">
+          <input label="E" type="radio" name="diff" id="diff0" />
+          <input label="M" type="radio" name="diff" id="diff1" />
+          <input label="H" type="radio" name="diff" id="diff2" checked />
+        </div>
+        <button id="new-game">New Game</button>
+      </div>
     </div>
-    <div id="pieces"></div>
-    <div id="squares"></div>
-    <div id="settings-menu" class="hidden">
-      <span class="r-label">Blue</span>
-      <div class="radio select2">
-        <input label="Human" type="radio" name="blue" id="blueHuman" checked>
-        <input label="AI" type="radio" name="blue" id="blueAI">
-        <div class="slider"></div>
-      </div>
-      <span class="r-label">Red</span>
-      <div class="radio select2">
-        <input label="Human" type="radio" name="red" id="redHuman">
-        <input label="AI" type="radio" name="red" id="redAI" checked>
-      </div>
-      <span class="r-label">Start</span>
-      <div class="radio select2">
-        <input label="Blue" type="radio" name="start" id="startBlue" checked>
-        <input label="Red" type="radio" name="start" id="startRed">
-      </div>
-      <span class="r-label">Difficulty</span>
-      <div class="radio select3">
-        <input label="E" type="radio" name="diff" id="diff0">
-        <input label="M" type="radio" name="diff" id="diff1">
-        <input label="H" type="radio" name="diff" id="diff2" checked>
-      </div>
-      <button id="new-game">New Game</button>
-
-
-
-    </div>
-  </div>
-</body>
-
+  </body>
 </html>

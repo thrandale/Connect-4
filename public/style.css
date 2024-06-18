@@ -12,7 +12,7 @@
   --color-lightGray: #696969;
   --color-blue: #211a73;
   --color-red: #821f1f;
-  --border-size: .7vmin;
+  --border-size: 0.7vmin;
   --board-size: 90vmin;
 }
 
@@ -24,7 +24,6 @@ body {
   margin: 5vmin;
   padding: 0;
 }
-
 
 #game-board {
   width: var(--board-size);
@@ -64,7 +63,9 @@ body {
   overflow: hidden;
   border: var(--color-darkGreen) solid calc(var(--border-size) / 2);
   padding: calc(var(--border-size));
-  box-shadow: inset 0 0 0 var(--border-size) var(--color-lightGray), 0 0 0 calc(var(--border-size) / 2) var(--color-darkGreen);
+  box-shadow:
+    inset 0 0 0 var(--border-size) var(--color-lightGray),
+    0 0 0 calc(var(--border-size) / 2) var(--color-darkGreen);
 }
 
 .square::after {
@@ -102,8 +103,14 @@ body {
   width: var(--size);
   height: var(--size);
   border-radius: 50%;
-  left: calc(var(--board-size) / 7 / 2 - var(--size) / 2 - var(--border-size) / 2 + var(--x) * (var(--board-size) / 7 - var(--border-size) / 6));
-  top: calc(var(--board-size) / 7 + var(--board-size) / 7 / 2 - var(--size) / 2 + var(--y) * (var(--board-size) / 7 - var(--border-size) / 3));
+  left: calc(
+    var(--board-size) / 7 / 2 - var(--size) / 2 - var(--border-size) / 2 +
+      var(--x) * (var(--board-size) / 7 - var(--border-size) / 6)
+  );
+  top: calc(
+    var(--board-size) / 7 + var(--board-size) / 7 / 2 - var(--size) / 2 +
+      var(--y) * (var(--board-size) / 7 - var(--border-size) / 3)
+  );
 }
 
 .piece[data-color="red"] {
@@ -145,10 +152,11 @@ body {
   background-color: var(--color-lightGreen);
   border-radius: calc(var(--board-size) / 7 / 2);
   transition: all 80ms ease-in-out;
-  box-shadow: 0 calc(var(--border-size)) calc(var(--border-size)) var(--color-darkGray);
+  box-shadow: 0 calc(var(--border-size)) calc(var(--border-size))
+    var(--color-darkGray);
 }
 
-#settings-button:active>.setting-bar {
+#settings-button:active > .setting-bar {
   transform: translateY(calc(var(--border-size) / 2));
   box-shadow: none;
 }
@@ -162,7 +170,8 @@ body {
   background-color: var(--color-darkGreen);
   border-radius: 1vmin;
   border: var(--border-size) solid var(--color-lightGreen);
-  box-shadow: 0 0 var(--border-size) calc(var(--border-size)) var(--color-darkGreen);
+  box-shadow: 0 0 var(--border-size) calc(var(--border-size))
+    var(--color-darkGreen);
   transform-origin: top right;
   display: grid;
   padding-left: 1vmin;
@@ -189,7 +198,8 @@ body {
   display: grid;
   gap: 1%;
   border: var(--border-size) solid var(--color-lightGreen);
-  box-shadow: inset 0 0 var(--border-size) calc(var(--border-size) / 2) var(--color-darkGreen);
+  box-shadow: inset 0 0 var(--border-size) calc(var(--border-size) / 2)
+    var(--color-darkGreen);
 }
 
 .select2 {
@@ -199,7 +209,6 @@ body {
 .select3 {
   grid-template-columns: repeat(3, 1fr);
 }
-
 
 .r-label {
   position: relative;
@@ -214,7 +223,7 @@ body {
   width: 100%;
   height: 100%;
   appearance: none;
-  border-radius: .8vmin;
+  border-radius: 0.8vmin;
   outline: none;
   cursor: pointer;
   transition: all 300ms ease-in-out;
@@ -223,7 +232,8 @@ body {
 .radio input:checked {
   background-color: var(--color-lightGreen);
   color: var(--color-darkGreen);
-  box-shadow: 0 0 calc(var(--border-size) / 2) calc(var(--border-size) / 2) var(--color-darkGreen);
+  box-shadow: 0 0 calc(var(--border-size) / 2) calc(var(--border-size) / 2)
+    var(--color-darkGreen);
 }
 
 .radio input {
@@ -255,11 +265,11 @@ body {
   font-size: 3vmin;
   font-weight: bold;
   cursor: pointer;
-  box-shadow: 0 var(--border-size) calc(var(--border-size)) calc(var(--border-size) / 2) var(--color-darkGray);
+  box-shadow: 0 var(--border-size) calc(var(--border-size))
+    calc(var(--border-size) / 2) var(--color-darkGray);
   transform: translateY(calc(var(--border-size) / -1));
   transition: all 80ms ease-in-out;
   padding: 0;
-
 }
 
 #new-game:active {
@@ -277,9 +287,8 @@ body {
   }
 
   65% {
-    transform: translateY(calc(var(--board-size) / -7 * (var(--y) + 1) * .03));
+    transform: translateY(calc(var(--board-size) / -7 * (var(--y) + 1) * 0.03));
   }
-
 }
 
 @keyframes scale {
