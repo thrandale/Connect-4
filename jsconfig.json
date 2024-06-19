@@ -1,6 +1,6 @@
 {
-    "compilerOptions": {
-        "target": "es6",
-        "checkJs": true
-    }
+  "compilerOptions": {
+    "target": "es6",
+    "checkJs": true
+  }
 }
