@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "tsc --watch & firebase serve --only hosting"
+    "start": "tsc --watch & firebase serve --only hosting",
+    "build": "tsc"
   },
   "devDependencies": {
     "@types/node": "^20.14.6",
