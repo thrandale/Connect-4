@@ -7,7 +7,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "tsc --watch & firebase serve --only hosting",
+    "watch": "tsc --watch",
+    "start": "firebase serve --only hosting",
     "build": "tsc",
     "clean": "rm -rf public/dist",
     "format": "prettier --write ."
