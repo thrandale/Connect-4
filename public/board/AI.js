@@ -402,7 +402,7 @@ export default class AI {
         this.#threeBarScoreBlock = 3;
         this.#depthScore = 2;
 
-        this.#depth = 9;
+        this.#depth = 5;
         break;
     }
   }
