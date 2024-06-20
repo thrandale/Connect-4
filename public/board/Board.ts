@@ -11,8 +11,8 @@ export default class Board {
   private _numColumns;
   private _startingPlayer: Player = "blue";
   private _currentPlayer: Player = this._startingPlayer;
-  private _bluePlayerAI: boolean = false;
-  private _redPlayerAI: boolean = false;
+  private _bluePlayerAI: boolean = true;
+  private _redPlayerAI: boolean = true;
   private _player1: Player;
   private _player2: Player;
   private _lastDrop: Drop | null = null;
@@ -221,6 +221,14 @@ export default class Board {
 
   set redPlayerAI(isAI: boolean) {
     this._redPlayerAI = isAI;
+  }
+
+  get bluePlayerAI() {
+    return this._bluePlayerAI;
+  }
+
+  get redPlayerAI() {
+    return this._redPlayerAI;
   }
 
   get difficulty() {
