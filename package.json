@@ -1,0 +1,13 @@
+{
+  "name": "connect-4",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "tsc --watch & firebase serve --only hosting"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.6",
+    "typescript": "^5.4.5"
+  }
+}

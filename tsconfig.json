@@ -1,0 +1,16 @@
+{
+    "compilerOptions": {
+        "outDir": "./public/dist",
+        "rootDir": "./public",
+        "target": "es6",
+        "module": "es6",
+        "strict": true,
+        "esModuleInterop": true
+    },
+    "include": [
+        "public/**/*"
+    ],
+    "exclude": [
+        "node_modules"
+    ]
+}
