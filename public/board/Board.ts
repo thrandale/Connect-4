@@ -11,7 +11,8 @@ export default class Board {
   private _numColumns;
   private _startingPlayer: Player = "blue";
   private _currentPlayer: Player = this._startingPlayer;
-  private _numHumanPlayers: number = 1;
+  private _bluePlayerAI: boolean = false;
+  private _redPlayerAI: boolean = false;
   private _player1: Player;
   private _player2: Player;
   private _lastDrop: Drop | null = null;
@@ -195,7 +196,7 @@ export default class Board {
   }
 
   get numHumanPlayers() {
-    return this._numHumanPlayers;
+    return [this._bluePlayerAI, this._redPlayerAI].filter((x) => !x).length;
   }
 
   get winner() {
@@ -214,8 +215,12 @@ export default class Board {
     this._startingPlayer = player;
   }
 
-  set numHumanPlayers(num) {
-    this._numHumanPlayers = num;
+  set bluePlayerAI(isAI: boolean) {
+    this._bluePlayerAI = isAI;
+  }
+
+  set redPlayerAI(isAI: boolean) {
+    this._redPlayerAI = isAI;
   }
 
   get difficulty() {

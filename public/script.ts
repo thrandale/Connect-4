@@ -17,6 +17,7 @@ const startBlue = document.getElementById("startBlue")! as HTMLInputElement;
 const startRed = document.getElementById("startRed")! as HTMLInputElement;
 const diff0 = document.getElementById("diff0")! as HTMLInputElement;
 const diff1 = document.getElementById("diff1")! as HTMLInputElement;
+const diff2 = document.getElementById("diff2")! as HTMLInputElement;
 
 var abortController: AbortController | null = null;
 
@@ -27,7 +28,28 @@ function init() {
   createPlayerPiece();
   activateSettingsButton();
   activateNewGameButton();
+  setSettings();
   reset();
+}
+
+function setSettings() {
+  diff0.checked = board.difficulty === 0;
+  diff1.checked = board.difficulty === 1;
+  diff2.checked = board.difficulty === 2;
+  startBlue.checked = board.startingPlayer === "blue";
+  startRed.checked = board.startingPlayer === "red";
+
+  if (board.redPlayerAI) {
+    redAI.checked = true;
+  } else {
+    redHuman.checked = true;
+  }
+
+  if (board.bluePlayerAI) {
+    blueAI.checked = true;
+  } else {
+    blueHuman.checked = true;
+  }
 }
 
 function activateSettingsButton() {
@@ -258,12 +280,8 @@ async function reset() {
     currentPieces[i].remove();
   }
 
-  board.numHumanPlayers =
-    blueHuman.checked || redHuman.checked
-      ? blueHuman.checked && redHuman.checked
-        ? 2
-        : 1
-      : 0;
+  board.redPlayerAI = redAI.checked;
+  board.bluePlayerAI = blueAI.checked;
   board.startingPlayer = startBlue.checked ? "blue" : "red";
   board.difficulty = diff0.checked ? 0 : diff1.checked ? 1 : 2;
 
