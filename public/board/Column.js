@@ -3,29 +3,22 @@ A Column of the board made up of squares
 */
 
 export default class Column {
-  #x;
   #rows;
-  #ROWS;
-  constructor(x, rows) {
-    this.#x = x;
+  constructor(numRows) {
     this.#rows = [];
-    this.#ROWS = rows;
 
     // add the squares to the column
-    for (let i = 0; i < this.#ROWS; i++) {
-      this.#rows.push(null);
-    }
+    this.#rows = Array(numRows).fill(null);
   }
 
-  onDrop(column, player) {
+  onDrop(player) {
     // if the column is clicked, drop a piece unless the column is full
-    let row = this.getRow();
+    let row = this.getFirstEmptyRow();
     if (row === null) return;
     this.#rows[row] = player;
-    let currentDrop = { row: row, column: column };
   }
 
-  getRow() {
+  getFirstEmptyRow() {
     for (let i = this.#rows.length - 1; i >= 0; i--) {
       if (this.#rows[i] === null) {
         return i;

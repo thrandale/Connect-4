@@ -2,6 +2,7 @@ export default class AI {
   #winScore = 100;
   #tolerance = 1;
 
+  // Set in the setDifficulty function
   #centerColumnScore = 0;
   #centerColumnHeight = 0;
   #twoBarScore = 0;
@@ -12,82 +13,76 @@ export default class AI {
   #depth = 0;
 
   #difficulty = 2;
-  #ROWS;
-  #COLUMNS;
-  #iterations;
+  #numColumns;
+  #iterations = 0;
   #DEBUG = true;
 
-  constructor(rows, columns) {
-    this.#ROWS = rows;
-    this.#COLUMNS = columns;
+  constructor(numColumns) {
+    this.#numColumns = numColumns;
   }
 
   bestMove(board, player) {
+    let startTime = new Date().getTime();
     let bestMove;
     let bestScore = -Infinity;
     let bestMoves = [];
     let score = 0;
-    let lastDrop = { row: 0, column: 0, player: null };
+    let lastDrop;
     let opponent = player === "red" ? "blue" : "red";
     this.#iterations = 0;
 
     // get the best move
-    for (let i = 0; i < this.#COLUMNS; i++) {
+    for (let col = 0; col < this.#numColumns; col++) {
       // if column is available, play in it.
-      for (let j = this.#ROWS - 1; j >= 0; j--) {
-        if (board.columns[i].rows[j] === null) {
-          let currentIterations = 0;
+      let row = board.columns[col].getFirstEmptyRow();
+      if (row === null) continue;
 
-          // play the piece
-          board.columns[i].rows[j] = player;
-          lastDrop.column = i;
-          lastDrop.row = j;
-          lastDrop.player = player;
+      // play the piece
+      board.columns[col].rows[row] = player;
+      lastDrop = { row: row, column: col, player: player };
 
-          // get the score
-          score = this.#minimax(
-            board,
-            lastDrop,
-            this.#depth,
-            -Infinity,
-            Infinity,
-            false,
-            player,
-            opponent,
-          );
+      // get the score
+      score = this.#minimax(
+        board,
+        lastDrop,
+        this.#depth,
+        -Infinity,
+        Infinity,
+        false,
+        player,
+        opponent,
+      );
 
-          // only evaluate move farther if it is not a winning or losing score
-          if (score < this.#winScore && score > -this.#winScore) {
-            score += this.#evaluation(lastDrop, board);
-          }
+      // only evaluate move farther if it is not a winning or losing score
+      if (score < this.#winScore && score > -this.#winScore) {
+        score += this.#evaluation(lastDrop, board);
+      }
 
-          if (this.#DEBUG)
-            console.log(
-              `Col: ${lastDrop.column}, Score: ${Math.round(score, 2)}`,
-            );
+      if (this.#DEBUG)
+        console.log(`Col: ${lastDrop.column}, Score: ${score.toFixed(2)}`);
 
-          // undo the move
-          board.columns[i].rows[j] = null;
+      // undo the move
+      board.columns[col].rows[row] = null;
 
-          // if the score is within the tolerance, add it to the best moves
-          if (
-            score >= bestScore - this.#tolerance &&
-            score <= bestScore + this.#tolerance
-          ) {
-            bestMoves.push(i);
-          } else if (score > bestScore) {
-            bestScore = score;
-            bestMoves = [i];
-            bestMove = { row: j, column: i };
-          }
-          break;
-        }
+      // if the score is within the tolerance, add it to the best moves
+      if (
+        score >= bestScore - this.#tolerance &&
+        score <= bestScore + this.#tolerance
+      ) {
+        bestMoves.push(col);
+      } else if (score > bestScore) {
+        bestScore = score;
+        bestMoves = [col];
+        bestMove = { row: row, column: col };
       }
     }
 
     if (this.#DEBUG) {
       console.log(`Depth: ${this.#depth}`);
-      console.log(`Iterations: ${this.#iterations}\n\n`);
+      console.log(`Iterations: ${this.#iterations}\n`);
+      let endTime = new Date().getTime();
+      let timeTaken = endTime - startTime;
+      console.log(`Time taken: ${timeTaken}ms\n\n`);
     }
 
     // if multiple moves are within the tolerance, choose a random one
@@ -96,13 +91,13 @@ export default class AI {
     }
 
     if (bestMove === undefined) {
-      return Math.floor(Math.random() * this.#COLUMNS);
+      return Math.floor(Math.random() * this.#numColumns);
     }
 
     return bestMove.column;
   }
 
-  #minimax = function (
+  #minimax(
     board,
     lastDrop,
     depth,
@@ -112,12 +107,11 @@ export default class AI {
     player,
     opponent,
   ) {
-    let bestScore;
+    let bestScore = isMaximizing ? -Infinity : Infinity;
+    let dropTmp;
     let score;
 
-    let dropTmp = { row: 0, col: 0, player: null };
-
-    // // check for win and return result
+    // check for win and return result
     let result = board.checkWinner(lastDrop.column);
 
     if (result !== null) {
@@ -130,118 +124,84 @@ export default class AI {
           return 0;
       }
     }
+
     // return if reached depth
     if (depth <= 0) {
-      if (isMaximizing) return this.#evaluation(lastDrop, board, depth);
-      else return -this.#evaluation(lastDrop, board, depth);
+      return isMaximizing
+        ? this.#evaluation(lastDrop, board)
+        : -this.#evaluation(lastDrop, board);
     }
+
     this.#iterations++;
+    for (let col = 0; col < this.#numColumns; col++) {
+      // if column is available, play in it.
+      let row = board.columns[col].getFirstEmptyRow();
+      if (row === null) continue;
 
-    if (isMaximizing) {
-      bestScore = -Infinity;
-      for (let i = 0; i < this.#COLUMNS; i++) {
-        // if column is available, play in it.
-        for (let j = board.columns[i].rows.length - 1; j >= 0; j--) {
-          if (board.columns[i].rows[j] === null) {
-            // play the piece
-            board.columns[i].rows[j] = player;
-            dropTmp.column = i;
-            dropTmp.row = j;
-            dropTmp.player = player;
-            score = this.#minimax(
-              board,
-              dropTmp,
-              depth - 1,
-              alpha,
-              beta,
-              !isMaximizing,
-              player,
-              opponent,
-            );
+      // play the piece
+      let activePlayer = isMaximizing ? player : opponent;
+      board.columns[col].rows[row] = activePlayer;
+      dropTmp = { row: row, column: col, player: activePlayer };
+      score = this.#minimax(
+        board,
+        dropTmp,
+        depth - 1,
+        alpha,
+        beta,
+        !isMaximizing,
+        player,
+        opponent,
+      );
 
-            //alpha beta pruning
-            alpha = Math.max(alpha, score);
+      if (isMaximizing) {
+        alpha = Math.max(alpha, score);
 
-            board.columns[i].rows[j] = null;
-
-            if (score >= bestScore - 0.5 && score <= bestScore + 0.5) {
-              let rand = Math.round(Math.random(0, 1));
-              if (rand === 0) {
-                bestScore = score;
-              }
-            } else if (score > bestScore) {
-              bestScore = score;
-            }
-            break;
+        // if the score is within the tolerance, add it to the best moves
+        if (score >= bestScore - 0.5 && score <= bestScore + 0.5) {
+          let rand = Math.round(Math.random());
+          if (rand === 0) {
+            bestScore = score;
           }
+        } else if (score > bestScore) {
+          bestScore = score;
         }
-        //alpha beta pruning
-        if (beta <= alpha) break;
-      }
-      return bestScore;
-    } else {
-      bestScore = Infinity;
-      for (let i = 0; i < this.#COLUMNS; i++) {
-        // if column is available, play in it.
-        for (let j = board.columns[i].rows.length - 1; j >= 0; j--) {
-          if (board.columns[i].rows[j] === null) {
-            // play the piece
-            board.columns[i].rows[j] = opponent;
+      } else {
+        beta = Math.min(beta, score);
 
-            dropTmp.column = i;
-            dropTmp.row = j;
-            dropTmp.player = opponent;
-            score = this.#minimax(
-              board,
-              dropTmp,
-              depth - 1,
-              alpha,
-              beta,
-              !isMaximizing,
-              player,
-              opponent,
-            );
-
-            // alpha beta pruning
-            beta = Math.min(beta, score);
-
-            board.columns[i].rows[j] = null;
-            if (score >= bestScore - 0.5 && score <= bestScore + 0.5) {
-              let rand = Math.round(Math.random(0, 1));
-              if (rand === 0) {
-                bestScore = score;
-              }
-            }
-            if (score < bestScore) {
-              bestScore = score;
-            }
-            break;
+        // if the score is within the tolerance, add it to the best moves
+        if (score <= bestScore - 0.5 && score >= bestScore + 0.5) {
+          let rand = Math.round(Math.random());
+          if (rand === 0) {
+            bestScore = score;
           }
+        } else if (score < bestScore) {
+          bestScore = score;
         }
-
-        // alpha beta pruning
-        if (beta <= alpha) break;
       }
-      return bestScore;
+
+      // undo the move
+      board.columns[col].rows[row] = null;
+
+      //alpha beta pruning
+      if (beta <= alpha) break;
     }
-  };
 
-  #evaluation(lastDrop, board, depth = 0) {
-    let score = 0;
+    return bestScore;
+  }
 
-    score += this.#prioritizeCenter(lastDrop);
-    score += this.#checkBar(lastDrop, board);
-
-    return score;
+  #evaluation(lastDrop, board) {
+    return this.#prioritizeCenter(lastDrop) + this.#checkBar(lastDrop, board);
   }
 
   #prioritizeCenter(lastDrop) {
-    if (lastDrop.column === Math.floor(this.#COLUMNS / 2)) {
+    if (lastDrop.column === Math.floor(this.#numColumns / 2)) {
       return (
         (this.#centerColumnScore * (lastDrop.row + 1)) /
         this.#centerColumnHeight
       );
-    } else return 0;
+    }
+
+    return 0;
   }
 
   #evaluateDepth(depth) {
@@ -259,7 +219,7 @@ export default class AI {
 
     // these are the minimum and maximum rows- and columns that we have to check for the win condition
     let minCol = Math.max(lastDrop.column - 3, 0);
-    let maxCol = Math.min(lastDrop.column + 3, this.#COLUMNS - 1);
+    let maxCol = Math.min(lastDrop.column + 3, this.#numColumns - 1);
     let minRow = Math.max(lastDrop.row - 3, 0);
     let maxRow = Math.min(lastDrop.row + 3, board.columns[0].rows.length - 1);
 
@@ -411,6 +371,7 @@ export default class AI {
     this.#difficulty = difficulty;
     switch (this.#difficulty) {
       case 0:
+        // Negative values to look for the worst move instead of the best
         this.#centerColumnScore = -8;
         this.#centerColumnHeight = 1.2;
         this.#twoBarScore = -3;
@@ -441,7 +402,7 @@ export default class AI {
         this.#threeBarScoreBlock = 3;
         this.#depthScore = 2;
 
-        this.#depth = 5;
+        this.#depth = 9;
         break;
     }
   }

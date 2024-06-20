@@ -4,8 +4,8 @@ import AI from "./AI.js";
 export default class Board {
   #columns;
   #currentPlayer;
-  #ROWS;
-  #COLUMNS;
+  #numRows;
+  #numColumns;
   #startingPlayer = "blue";
   #numHumanPlayers = 1;
   #player1;
@@ -15,27 +15,26 @@ export default class Board {
   #AI;
   #difficulty = 2;
 
-  constructor(ROWS, COLUMNS) {
+  constructor(numRows, numColumns) {
     this.#columns = [];
-    this.#currentPlayer;
-    this.#ROWS = ROWS;
-    this.#COLUMNS = COLUMNS;
+    this.#numRows = numRows;
+    this.#numColumns = numColumns;
     this.#player1 = "red";
     this.#player2 = "blue";
     this.#winner = null;
-    this.#AI = new AI(this.#ROWS, this.#COLUMNS);
+    this.#AI = new AI(this.#numColumns);
     this.#init();
   }
 
   #init() {
-    for (let i = 0; i < this.#COLUMNS; i++) {
-      this.#columns.push(new Column(i, this.#ROWS));
+    for (let i = 0; i < this.#numColumns; i++) {
+      this.#columns.push(new Column(this.#numRows));
     }
     this.reset();
   }
 
   reset() {
-    for (let i = 0; i < this.#COLUMNS; i++) {
+    for (let i = 0; i < this.#numColumns; i++) {
       this.#columns[i].reset();
     }
     this.#currentPlayer = this.#startingPlayer;
@@ -44,9 +43,9 @@ export default class Board {
   }
 
   #drop(column) {
-    this.#columns[column].onDrop(column, this.#currentPlayer);
+    this.#columns[column].onDrop(this.#currentPlayer);
     this.#lastDrop = {
-      row: this.#columns[column].getRow() + 1,
+      row: this.#columns[column].getFirstEmptyRow() + 1,
       column: column,
     };
     this.#changePlayer();
@@ -72,13 +71,13 @@ export default class Board {
     return this.#columns[column].isFull();
   }
 
-  getRow(column) {
-    return this.#columns[column].getRow();
+  getFirstEmptyRow(column) {
+    return this.#columns[column].getFirstEmptyRow();
   }
 
   checkWinner(column) {
     let playerCount = 0;
-    for (let i = 0; i < this.#ROWS; i++) {
+    for (let i = 0; i < this.#numRows; i++) {
       if (this.#columns[column].rows[i]) {
         this.#lastDrop = { row: i, column: column };
         break;

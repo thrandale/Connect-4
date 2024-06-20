@@ -1,6 +1,5 @@
 import Board from "./board/Board.js";
 
-// const gameBoard = document.getElementById('game-board');
 const squares = document.getElementById("squares");
 const pieces = document.getElementById("pieces");
 const ROWS = 6;
@@ -113,7 +112,7 @@ function createBoard() {
   for (let i = 0; i < ROWS * COLUMNS; i++) {
     const square = document.createElement("div");
     square.classList.add("square");
-    square.setAttribute("data-column", i % COLUMNS);
+    square.setAttribute("data-column", (i % COLUMNS).toString());
 
     if (i % COLUMNS === 0) {
       square.classList.add("left");
@@ -134,8 +133,8 @@ function createBoard() {
 function createPlayerPiece() {
   playerPiece.classList.add("piece");
   playerPiece.classList.add("player-piece");
-  playerPiece.style.setProperty("--x", 0);
-  playerPiece.style.setProperty("--y", -1);
+  playerPiece.style.setProperty("--x", "0");
+  playerPiece.style.setProperty("--y", "-1");
   playerPiece.setAttribute("data-color", board.startingPlayer);
   playerPiece.hidden = true;
   pieces.append(playerPiece);
@@ -229,7 +228,7 @@ function switchPlayer() {
 
 function dropPiece(column, player) {
   return new Promise(async (resolve, reject) => {
-    const row = board.getRow(column);
+    const row = board.getFirstEmptyRow(column);
     if (row === null) return reject(new Error("Invalid drop"));
 
     playerPiece.hidden = true;
