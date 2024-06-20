@@ -5,42 +5,91 @@ export type Player = "red" | "blue";
 export type Drop = { row: number; column: number; player?: Player };
 type Winner = Player | "tie";
 
+type Bitboards = {
+  [player in Player]: bigint;
+};
+
 export default class Board {
   private _columns: Column[];
   private _numRows;
   private _numColumns;
   private _startingPlayer: Player = "blue";
   private _currentPlayer: Player = this._startingPlayer;
-  private _bluePlayerAI: boolean = true;
+  private _bluePlayerAI: boolean = false;
   private _redPlayerAI: boolean = true;
   private _player1: Player;
   private _player2: Player;
-  private _lastDrop: Drop | null = null;
   private _winner: Winner | null;
   private _AI: AI;
   private _difficulty: number = 2;
+
+  private _bitboards: Bitboards = {
+    red: 0n,
+    blue: 0n,
+  };
+  private _bitboardHeights: number[] = [];
+  private _bitboardNumRows: number;
+  private _bitboardNumColumns: number;
 
   constructor(numRows: number, numColumns: number) {
     this._columns = [];
     this._numRows = numRows;
     this._numColumns = numColumns;
+    this._bitboardNumRows = numRows + 1;
+    this._bitboardNumColumns = numColumns + 2;
     this._player1 = "red";
     this._player2 = "blue";
     this._winner = null;
     this._AI = new AI(this._numColumns);
-    this._init();
-  }
-
-  _init() {
-    for (let i = 0; i < this._numColumns; i++) {
-      this._columns.push(new Column(this._numRows));
+    for (let i = 0; i < numColumns; i++) {
+      this._columns.push(new Column(numRows));
+      this._bitboardHeights.push(i * numColumns);
     }
     this.reset();
   }
 
+  makeMoveBitboard(column: number, player: Player) {
+    let move: bigint = 1n << BigInt(this._bitboardHeights[column]++);
+    this._bitboards[player] ^= move;
+    // this._printBitboards();
+  }
+
+  unmakeMoveBitboard(column: number, player: Player) {
+    let move: bigint = 1n << BigInt(--this._bitboardHeights[column]);
+    this._bitboards[player] ^= move;
+    // this._printBitboards();
+  }
+
+  _printBitboards() {
+    let mask = 1n;
+    let rows = Array(this._bitboardNumRows).fill("");
+    for (let i = 0; i < this._bitboardNumRows * this._bitboardNumColumns; i++) {
+      let row = i % (this._numRows + 1);
+      if (this._bitboards.blue & mask) {
+        rows[row] += "O ";
+      } else if (this._bitboards.red & mask) {
+        rows[row] += "X ";
+      } else {
+        rows[row] += ". ";
+      }
+      mask <<= 1n;
+    }
+
+    rows = rows
+      .reverse()
+      .slice(1)
+      .map((row) => "| " + row.slice(0, -4) + "|");
+    rows.push("|" + "-".repeat(this._bitboardNumRows * 2 + 1) + "|");
+    rows.push("| 0 1 2 3 4 5 6 |\n\n");
+    console.log(rows.join("\n"));
+  }
+
   reset(): void {
+    this._bitboards.red = 0n;
+    this._bitboards.blue = 0n;
     for (let i = 0; i < this._numColumns; i++) {
       this._columns[i].reset();
+      this._bitboardHeights[i] = i * this._numColumns;
     }
     this._currentPlayer = this._startingPlayer;
     this._winner = null;
@@ -48,16 +97,17 @@ export default class Board {
   }
 
   _drop(column: number): void {
+    this.makeMoveBitboard(column, this._currentPlayer);
+
     this._columns[column].onDrop(this._currentPlayer);
     let row = this._columns[column].getFirstEmptyRow();
     if (row === null) return;
-    this._lastDrop = { row: row + 1, column: column };
     this._changePlayer();
   }
 
   drop(column: number): void {
     this._drop(column);
-    this._winner = this.checkWinner(column);
+    this._winner = this.checkWinner();
   }
 
   getBestMove() {
@@ -79,116 +129,34 @@ export default class Board {
     return this._columns[column].getFirstEmptyRow();
   }
 
-  checkWinner(column: number): Winner | null {
-    let playerCount = 0;
-    for (let i = 0; i < this._numRows; i++) {
-      if (this._columns[column].rows[i]) {
-        this._lastDrop = { row: i, column: column };
-        break;
+  checkWinner(): Winner | null {
+    let redWin = this.checkBitboardWinner(this._bitboards.red);
+    let blueWin = this.checkBitboardWinner(this._bitboards.blue);
+    if (redWin && blueWin) {
+      return "tie";
+    } else if (redWin) {
+      return "red";
+    } else if (blueWin) {
+      return "blue";
+    } else {
+      return null;
+    }
+  }
+
+  checkBitboardWinner(bitboard: bigint): boolean {
+    // 1 = vertical
+    // 7 = horizontal
+    // 6 = diagonal \
+    // 8 = diagonal /
+    let directions = [1n, 7n, 6n, 8n];
+    for (let direction of directions) {
+      let shifted = bitboard & (bitboard >> direction);
+      if ((shifted & (shifted >> (direction * 2n))) !== 0n) {
+        return true;
       }
     }
 
-    if (this._lastDrop === null) return null;
-
-    // these are the minimum and maximum rows and columns that we have to check for the win condition
-    let minCol = Math.max(this._lastDrop.column - 3, 0);
-    let maxCol = Math.min(this._lastDrop.column + 3, this._columns.length - 1);
-    let minRow = Math.max(this._lastDrop.row - 3, 0);
-    let maxRow = Math.min(
-      this._lastDrop.row + 3,
-      this._columns[0].rows.length - 1,
-    );
-
-    /**** For each win direction, just check the slice that the last piece dropped is in****/
-    // Horizontal
-    // loop through each possible starting column
-    for (let i = minCol; i <= maxCol - 3; i++) {
-      playerCount = 0;
-      for (let j = 0; j <= 3; j++) {
-        if (
-          this._columns[i + j].rows[this._lastDrop.row] ===
-          this._columns[this._lastDrop.column].rows[this._lastDrop.row]
-        )
-          playerCount++;
-      }
-      if (playerCount >= 4)
-        return this._columns[this._lastDrop.column].rows[this._lastDrop.row];
-    }
-
-    // Vertical
-    for (let i = minRow; i <= maxRow - 3; i++) {
-      playerCount = 0;
-      for (let j = 0; j <= 3; j++) {
-        if (
-          this._columns[this._lastDrop.column].rows[i + j] ===
-          this._columns[this._lastDrop.column].rows[this._lastDrop.row]
-        )
-          playerCount++;
-      }
-      if (playerCount >= 4)
-        return this._columns[this._lastDrop.column].rows[this._lastDrop.row];
-    }
-
-    // Forward Slash
-    let currentRow =
-      this._lastDrop.row -
-      Math.min(this._lastDrop.row - minRow, this._lastDrop.column - minCol);
-    let currentCol =
-      this._lastDrop.column -
-      Math.min(this._lastDrop.row - minRow, this._lastDrop.column - minCol);
-    if (currentCol <= 3 && currentRow <= 2) {
-      while (currentRow <= maxRow - 3 && currentCol <= maxCol - 3) {
-        playerCount = 0;
-        for (let i = 0; i <= 3; i++) {
-          if (
-            this._columns[currentCol + i].rows[currentRow + i] ===
-            this._columns[this._lastDrop.column].rows[this._lastDrop.row]
-          )
-            playerCount++;
-        }
-        if (playerCount >= 4)
-          return this._columns[this._lastDrop.column].rows[this._lastDrop.row];
-        currentRow++;
-        currentCol++;
-      }
-    }
-
-    // Backwards Slash
-    currentRow =
-      this._lastDrop.row -
-      Math.min(this._lastDrop.row - minRow, maxCol - this._lastDrop.column);
-    currentCol =
-      this._lastDrop.column +
-      Math.min(this._lastDrop.row - minRow, maxCol - this._lastDrop.column);
-    if (currentCol >= 3 && currentRow <= 2) {
-      while (currentRow <= maxRow - 3 && currentCol >= minCol + 3) {
-        playerCount = 0;
-        for (let i = 0; i <= 3; i++) {
-          if (
-            this._columns[currentCol - i].rows[currentRow + i] ===
-            this._columns[this._lastDrop.column].rows[this._lastDrop.row]
-          )
-            playerCount++;
-        }
-        if (playerCount >= 4)
-          return this._columns[this._lastDrop.column].rows[this._lastDrop.row];
-        currentRow++;
-        currentCol--;
-      }
-    }
-
-    // if it's a tie
-    let available = 0;
-    for (let i = 0; i < this._columns.length; i++) {
-      if (this._columns[i].rows[0] === null) {
-        available++;
-      }
-    }
-
-    if (available === 0) return "tie";
-
-    // no winner
-    return null;
+    return false;
   }
 
   get currentPlayer() {

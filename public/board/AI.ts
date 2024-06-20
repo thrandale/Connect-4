@@ -42,6 +42,7 @@ export default class AI {
 
       // play the piece
       board.columns[col].rows[row] = player;
+      board.makeMoveBitboard(col, player);
       lastDrop = { row: row, column: col, player: player };
 
       // get the score
@@ -66,6 +67,7 @@ export default class AI {
 
       // undo the move
       board.columns[col].rows[row] = null;
+      board.unmakeMoveBitboard(col, player);
 
       // if the score is within the tolerance, add it to the best moves
       if (
@@ -120,7 +122,7 @@ export default class AI {
     let score;
 
     // check for win and return result
-    let result = board.checkWinner(lastDrop.column);
+    let result = board.checkWinner();
 
     if (result !== null) {
       switch (result) {
@@ -149,6 +151,7 @@ export default class AI {
       // play the piece
       let activePlayer = isMaximizing ? player : opponent;
       board.columns[col].rows[row] = activePlayer;
+      board.makeMoveBitboard(col, activePlayer);
       dropTmp = { row: row, column: col, player: activePlayer };
       score = this._minimax(
         board,
@@ -189,6 +192,7 @@ export default class AI {
 
       // undo the move
       board.columns[col].rows[row] = null;
+      board.unmakeMoveBitboard(col, activePlayer);
 
       //alpha beta pruning
       if (beta <= alpha) break;
