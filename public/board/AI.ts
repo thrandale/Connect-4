@@ -1,38 +1,40 @@
+import Board, { Drop, Player } from "./Board";
+
 export default class AI {
-  #winScore = 100;
-  #tolerance = 1;
+  private _winScore = 100;
+  private _tolerance = 1;
 
   // Set in the setDifficulty function
-  #centerColumnScore = 0;
-  #centerColumnHeight = 0;
-  #twoBarScore = 0;
-  #threeBarScore = 0;
-  #twoBarScoreBlock = 0;
-  #threeBarScoreBlock = 0;
-  #depthScore = 0;
-  #depth = 0;
+  private _centerColumnScore = 0;
+  private _centerColumnHeight = 0;
+  private _twoBarScore = 0;
+  private _threeBarScore = 0;
+  private _twoBarScoreBlock = 0;
+  private _threeBarScoreBlock = 0;
+  private _depthScore = 0;
+  private _depth = 0;
 
-  #difficulty = 2;
-  #numColumns;
-  #iterations = 0;
-  #DEBUG = true;
+  private _difficulty = 2;
+  private _numColumns;
+  private _iterations = 0;
+  private _DEBUG = true;
 
-  constructor(numColumns) {
-    this.#numColumns = numColumns;
+  constructor(numColumns: number) {
+    this._numColumns = numColumns;
   }
 
-  bestMove(board, player) {
+  bestMove(board: Board, player: Player): number {
     let startTime = new Date().getTime();
     let bestMove;
     let bestScore = -Infinity;
-    let bestMoves = [];
+    let bestMoves: number[] = [];
     let score = 0;
     let lastDrop;
-    let opponent = player === "red" ? "blue" : "red";
-    this.#iterations = 0;
+    let opponent: Player = player === "red" ? "blue" : "red";
+    this._iterations = 0;
 
     // get the best move
-    for (let col = 0; col < this.#numColumns; col++) {
+    for (let col = 0; col < this._numColumns; col++) {
       // if column is available, play in it.
       let row = board.columns[col].getFirstEmptyRow();
       if (row === null) continue;
@@ -42,10 +44,10 @@ export default class AI {
       lastDrop = { row: row, column: col, player: player };
 
       // get the score
-      score = this.#minimax(
+      score = this._minimax(
         board,
         lastDrop,
-        this.#depth,
+        this._depth,
         -Infinity,
         Infinity,
         false,
@@ -54,11 +56,11 @@ export default class AI {
       );
 
       // only evaluate move farther if it is not a winning or losing score
-      if (score < this.#winScore && score > -this.#winScore) {
-        score += this.#evaluation(lastDrop, board);
+      if (score < this._winScore && score > -this._winScore) {
+        score += this._evaluation(lastDrop, board);
       }
 
-      if (this.#DEBUG)
+      if (this._DEBUG)
         console.log(`Col: ${lastDrop.column}, Score: ${score.toFixed(2)}`);
 
       // undo the move
@@ -66,8 +68,8 @@ export default class AI {
 
       // if the score is within the tolerance, add it to the best moves
       if (
-        score >= bestScore - this.#tolerance &&
-        score <= bestScore + this.#tolerance
+        score >= bestScore - this._tolerance &&
+        score <= bestScore + this._tolerance
       ) {
         bestMoves.push(col);
       } else if (score > bestScore) {
@@ -77,9 +79,9 @@ export default class AI {
       }
     }
 
-    if (this.#DEBUG) {
-      console.log(`Depth: ${this.#depth}`);
-      console.log(`Iterations: ${this.#iterations}\n`);
+    if (this._DEBUG) {
+      console.log(`Depth: ${this._depth}`);
+      console.log(`Iterations: ${this._iterations}\n`);
       let endTime = new Date().getTime();
       let timeTaken = endTime - startTime;
       console.log(`Time taken: ${timeTaken}ms\n\n`);
@@ -91,21 +93,21 @@ export default class AI {
     }
 
     if (bestMove === undefined) {
-      return Math.floor(Math.random() * this.#numColumns);
+      return Math.floor(Math.random() * this._numColumns);
     }
 
     return bestMove.column;
   }
 
-  #minimax(
-    board,
-    lastDrop,
-    depth,
-    alpha,
-    beta,
-    isMaximizing,
-    player,
-    opponent,
+  _minimax(
+    board: Board,
+    lastDrop: Drop,
+    depth: number,
+    alpha: number,
+    beta: number,
+    isMaximizing: boolean,
+    player: Player,
+    opponent: Player,
   ) {
     let bestScore = isMaximizing ? -Infinity : Infinity;
     let dropTmp;
@@ -117,9 +119,9 @@ export default class AI {
     if (result !== null) {
       switch (result) {
         case player:
-          return this.#winScore + this.#evaluateDepth(depth);
+          return this._winScore + this._evaluateDepth(depth);
         case opponent:
-          return -this.#winScore - this.#evaluateDepth(depth);
+          return -this._winScore - this._evaluateDepth(depth);
         case "tie":
           return 0;
       }
@@ -128,12 +130,12 @@ export default class AI {
     // return if reached depth
     if (depth <= 0) {
       return isMaximizing
-        ? this.#evaluation(lastDrop, board)
-        : -this.#evaluation(lastDrop, board);
+        ? this._evaluation(lastDrop, board)
+        : -this._evaluation(lastDrop, board);
     }
 
-    this.#iterations++;
-    for (let col = 0; col < this.#numColumns; col++) {
+    this._iterations++;
+    for (let col = 0; col < this._numColumns; col++) {
       // if column is available, play in it.
       let row = board.columns[col].getFirstEmptyRow();
       if (row === null) continue;
@@ -142,7 +144,7 @@ export default class AI {
       let activePlayer = isMaximizing ? player : opponent;
       board.columns[col].rows[row] = activePlayer;
       dropTmp = { row: row, column: col, player: activePlayer };
-      score = this.#minimax(
+      score = this._minimax(
         board,
         dropTmp,
         depth - 1,
@@ -189,26 +191,26 @@ export default class AI {
     return bestScore;
   }
 
-  #evaluation(lastDrop, board) {
-    return this.#prioritizeCenter(lastDrop) + this.#checkBar(lastDrop, board);
+  _evaluation(lastDrop: Drop, board: Board) {
+    return this._prioritizeCenter(lastDrop) + this._checkBar(lastDrop, board);
   }
 
-  #prioritizeCenter(lastDrop) {
-    if (lastDrop.column === Math.floor(this.#numColumns / 2)) {
+  _prioritizeCenter(lastDrop: Drop): number {
+    if (lastDrop.column === Math.floor(this._numColumns / 2)) {
       return (
-        (this.#centerColumnScore * (lastDrop.row + 1)) /
-        this.#centerColumnHeight
+        (this._centerColumnScore * (lastDrop.row + 1)) /
+        this._centerColumnHeight
       );
     }
 
     return 0;
   }
 
-  #evaluateDepth(depth) {
-    return depth * this.#depthScore;
+  _evaluateDepth(depth: number): number {
+    return depth * this._depthScore;
   }
 
-  #checkBar(lastDrop, board) {
+  _checkBar(lastDrop: Drop, board: Board): number {
     let score = 0;
     let playerCount = 0;
     let opponentCount = 0;
@@ -219,7 +221,7 @@ export default class AI {
 
     // these are the minimum and maximum rows- and columns that we have to check for the win condition
     let minCol = Math.max(lastDrop.column - 3, 0);
-    let maxCol = Math.min(lastDrop.column + 3, this.#numColumns - 1);
+    let maxCol = Math.min(lastDrop.column + 3, this._numColumns - 1);
     let minRow = Math.max(lastDrop.row - 3, 0);
     let maxRow = Math.min(lastDrop.row + 3, board.columns[0].rows.length - 1);
 
@@ -240,16 +242,16 @@ export default class AI {
       }
       if (playerCount + emptyCount >= 4) {
         if (playerCount === 3) {
-          score += this.#threeBarScore;
+          score += this._threeBarScore;
         } else if (playerCount === 2) {
-          score += this.#twoBarScore;
+          score += this._twoBarScore;
         }
       }
       if (opponentCount + emptyCount >= 3) {
         if (opponentCount === 2) {
-          score += this.#twoBarScoreBlock;
+          score += this._twoBarScoreBlock;
         } else if (opponentCount === 1) {
-          score += this.#threeBarScoreBlock;
+          score += this._threeBarScoreBlock;
         }
       }
     }
@@ -268,16 +270,16 @@ export default class AI {
       }
       if (playerCount + emptyCount >= 4) {
         if (playerCount === 3) {
-          score += this.#threeBarScore;
+          score += this._threeBarScore;
         } else if (playerCount === 2) {
-          score += this.#twoBarScore;
+          score += this._twoBarScore;
         }
       }
       if (opponentCount + emptyCount >= 3) {
         if (opponentCount === 2) {
-          score += this.#twoBarScoreBlock;
+          score += this._twoBarScoreBlock;
         } else if (opponentCount === 1) {
-          score += this.#threeBarScoreBlock;
+          score += this._threeBarScoreBlock;
         }
       }
     }
@@ -306,16 +308,16 @@ export default class AI {
         }
         if (playerCount + emptyCount >= 4) {
           if (playerCount === 3) {
-            score += this.#threeBarScore;
+            score += this._threeBarScore;
           } else if (playerCount === 2) {
-            score += this.#twoBarScore;
+            score += this._twoBarScore;
           }
         }
         if (opponentCount + emptyCount >= 3) {
           if (opponentCount === 2) {
-            score += this.#twoBarScoreBlock;
+            score += this._twoBarScoreBlock;
           } else if (opponentCount === 1) {
-            score += this.#threeBarScoreBlock;
+            score += this._threeBarScoreBlock;
           }
         }
         currentRow++;
@@ -347,16 +349,16 @@ export default class AI {
         }
         if (playerCount + emptyCount >= 4) {
           if (playerCount === 3) {
-            score += this.#threeBarScore;
+            score += this._threeBarScore;
           } else if (playerCount === 2) {
-            score += this.#twoBarScore;
+            score += this._twoBarScore;
           }
         }
         if (opponentCount + emptyCount >= 3) {
           if (opponentCount === 2) {
-            score += this.#twoBarScoreBlock;
+            score += this._twoBarScoreBlock;
           } else if (opponentCount === 1) {
-            score += this.#threeBarScoreBlock;
+            score += this._threeBarScoreBlock;
           }
         }
         currentRow++;
@@ -367,42 +369,42 @@ export default class AI {
     return score;
   }
 
-  setDifficulty(difficulty) {
-    this.#difficulty = difficulty;
-    switch (this.#difficulty) {
+  setDifficulty(difficulty: number) {
+    this._difficulty = difficulty;
+    switch (this._difficulty) {
       case 0:
         // Negative values to look for the worst move instead of the best
-        this.#centerColumnScore = -8;
-        this.#centerColumnHeight = 1.2;
-        this.#twoBarScore = -3;
-        this.#threeBarScore = -4;
-        this.#twoBarScoreBlock = -2;
-        this.#threeBarScoreBlock = -3;
-        this.#depthScore = -2;
+        this._centerColumnScore = -8;
+        this._centerColumnHeight = 1.2;
+        this._twoBarScore = -3;
+        this._threeBarScore = -4;
+        this._twoBarScoreBlock = -2;
+        this._threeBarScoreBlock = -3;
+        this._depthScore = -2;
 
-        this.#depth = 1;
+        this._depth = 1;
         break;
       case 1:
-        this.#centerColumnScore = 0;
-        this.#centerColumnHeight = 1.2;
-        this.#twoBarScore = 3;
-        this.#threeBarScore = 4;
-        this.#twoBarScoreBlock = 0;
-        this.#threeBarScoreBlock = 0;
-        this.#depthScore = 2;
+        this._centerColumnScore = 0;
+        this._centerColumnHeight = 1.2;
+        this._twoBarScore = 3;
+        this._threeBarScore = 4;
+        this._twoBarScoreBlock = 0;
+        this._threeBarScoreBlock = 0;
+        this._depthScore = 2;
 
-        this.#depth = 3;
+        this._depth = 3;
         break;
       case 2:
-        this.#centerColumnScore = 8;
-        this.#centerColumnHeight = 1.2;
-        this.#twoBarScore = 3;
-        this.#threeBarScore = 4;
-        this.#twoBarScoreBlock = 2;
-        this.#threeBarScoreBlock = 3;
-        this.#depthScore = 2;
+        this._centerColumnScore = 8;
+        this._centerColumnHeight = 1.2;
+        this._twoBarScore = 3;
+        this._threeBarScore = 4;
+        this._twoBarScoreBlock = 2;
+        this._threeBarScoreBlock = 3;
+        this._depthScore = 2;
 
-        this.#depth = 5;
+        this._depth = 5;
         break;
     }
   }

@@ -1,15 +1,24 @@
-import Board from "./board/Board.js";
+import Board, { Player } from "./board/Board.js";
 
-const squares = document.getElementById("squares");
-const pieces = document.getElementById("pieces");
 const ROWS = 6;
 const COLUMNS = 7;
 const board = new Board(ROWS, COLUMNS);
+const squares = document.getElementById("squares")!;
+const pieces = document.getElementById("pieces")!;
 const playerPiece = document.createElement("div");
-const settingsButton = document.getElementById("settings-button");
-const settingsMenu = document.getElementById("settings-menu");
-const newGameButton = document.getElementById("new-game");
-let abortController = null;
+const settingsButton = document.getElementById("settings-button")!;
+const settingsMenu = document.getElementById("settings-menu")!;
+const newGameButton = document.getElementById("new-game")!;
+const blueHuman = document.getElementById("blueHuman")! as HTMLInputElement;
+const redHuman = document.getElementById("redHuman")! as HTMLInputElement;
+const blueAI = document.getElementById("blueAI")! as HTMLInputElement;
+const redAI = document.getElementById("redAI")! as HTMLInputElement;
+const startBlue = document.getElementById("startBlue")! as HTMLInputElement;
+const startRed = document.getElementById("startRed")! as HTMLInputElement;
+const diff0 = document.getElementById("diff0")! as HTMLInputElement;
+const diff1 = document.getElementById("diff1")! as HTMLInputElement;
+
+var abortController: AbortController | null = null;
 
 init();
 
@@ -55,7 +64,7 @@ async function play() {
     try {
       await playerPlay(abortController.signal);
     } catch (e) {
-      if (e.message === "Invalid drop") {
+      if ((e as Error).message === "Invalid drop") {
         return play();
       } else {
         return;
@@ -78,7 +87,7 @@ async function play() {
     try {
       await playerPlay(abortController.signal);
     } catch (e) {
-      if (e.message === "Invalid drop") {
+      if ((e as Error).message === "Invalid drop") {
         return play();
       } else {
         return;
@@ -135,17 +144,17 @@ function createPlayerPiece() {
   playerPiece.classList.add("player-piece");
   playerPiece.style.setProperty("--x", "0");
   playerPiece.style.setProperty("--y", "-1");
-  playerPiece.setAttribute("data-color", board.startingPlayer);
+  playerPiece.setAttribute("data-color", board.startingPlayer!);
   playerPiece.hidden = true;
   pieces.append(playerPiece);
 }
 
-function addPiece(x, y, player) {
+function addPiece(x: number, y: number, player: Player) {
   let piece = document.createElement("div");
   piece.classList.add("piece");
-  piece.style.setProperty("--x", x);
-  piece.style.setProperty("--y", y);
-  piece.setAttribute("data-color", player);
+  piece.style.setProperty("--x", x.toString());
+  piece.style.setProperty("--y", y.toString());
+  piece.setAttribute("data-color", player!);
   pieces.append(piece);
 
   return new Promise((resolve) => {
@@ -153,8 +162,8 @@ function addPiece(x, y, player) {
   });
 }
 
-async function playerPlay(abortSignal) {
-  return new Promise(async (resolve, reject) => {
+async function playerPlay(abortSignal: AbortSignal) {
+  return new Promise<void>(async (resolve, reject) => {
     squares.addEventListener(
       "click",
       async (e) => {
@@ -171,8 +180,8 @@ async function playerPlay(abortSignal) {
   });
 }
 
-async function aiPlay(abortSignal) {
-  return new Promise(async (resolve, reject) => {
+async function aiPlay(abortSignal: AbortSignal | null = null) {
+  return new Promise<void>(async (resolve, reject) => {
     if (abortSignal) {
       if (abortSignal.aborted) {
         return reject();
@@ -186,8 +195,8 @@ async function aiPlay(abortSignal) {
   });
 }
 
-function handleMove(e) {
-  const square = e.target.closest(".square");
+function handleMove(e: MouseEvent) {
+  const square = (e.target as HTMLElement).closest(".square");
   if (!square) {
     playerPiece.hidden = true;
     return;
@@ -198,17 +207,17 @@ function handleMove(e) {
   playerPiece.style.transform = `translateX(calc(${column} * (var(--board-size) / 7) + var(--board-size) / 7 / 2 - var(--size) / 2 - var(--border-size) / 4 * var(--x)))`;
 }
 
-async function handleClick(e, abortSignal) {
-  return new Promise(async (resolve, reject) => {
+async function handleClick(e: MouseEvent, abortSignal: AbortSignal) {
+  return new Promise<void>(async (resolve, reject) => {
     if (abortSignal.aborted) {
       return reject(e);
     }
 
-    const square = e.target.closest(".square");
+    const square = (e.target as HTMLElement).closest(".square");
     if (!square) return reject(new Error("Invalid drop"));
 
     const player = board.currentPlayer;
-    const column = parseInt(square.getAttribute("data-column"));
+    const column = parseInt(square.getAttribute("data-column") || "");
 
     try {
       await dropPiece(column, player);
@@ -223,11 +232,11 @@ async function handleClick(e, abortSignal) {
 }
 
 function switchPlayer() {
-  playerPiece.setAttribute("data-color", board.currentPlayer);
+  playerPiece.setAttribute("data-color", board.currentPlayer!);
 }
 
-function dropPiece(column, player) {
-  return new Promise(async (resolve, reject) => {
+function dropPiece(column: number, player: Player) {
+  return new Promise<void>(async (resolve, reject) => {
     const row = board.getFirstEmptyRow(column);
     if (row === null) return reject(new Error("Invalid drop"));
 
@@ -249,18 +258,14 @@ async function reset() {
     currentPieces[i].remove();
   }
 
-  let blueHuman = document.getElementById("blueHuman").checked;
-  let redHuman = document.getElementById("redHuman").checked;
   board.numHumanPlayers =
-    blueHuman || redHuman ? (blueHuman && redHuman ? 2 : 1) : 0;
-  board.startingPlayer = document.getElementById("startBlue").checked
-    ? "blue"
-    : "red";
-  board.difficulty = document.getElementById("diff0").checked
-    ? 0
-    : document.getElementById("diff1").checked
-      ? 1
-      : 2;
+    blueHuman.checked || redHuman.checked
+      ? blueHuman.checked && redHuman.checked
+        ? 2
+        : 1
+      : 0;
+  board.startingPlayer = startBlue.checked ? "blue" : "red";
+  board.difficulty = diff0.checked ? 0 : diff1.checked ? 1 : 2;
 
   playerPiece.setAttribute("data-color", playerStarts());
   board.reset();
@@ -272,8 +277,7 @@ async function reset() {
 }
 
 function playerStarts() {
-  return document.getElementById("blueHuman").checked ||
-    document.getElementById("redHuman").checked
+  return blueHuman.checked || redHuman.checked
     ? board.startingPlayer
     : board.startingPlayer === "blue"
       ? "red"
@@ -282,9 +286,6 @@ function playerStarts() {
 
 function aiStarts() {
   return (
-    (document.getElementById("blueAI").checked &&
-      document.getElementById("startBlue").checked) ||
-    (document.getElementById("redAI").checked &&
-      document.getElementById("startRed").checked)
+    (blueAI.checked && startBlue.checked) || (redAI.checked && startRed.checked)
   );
 }

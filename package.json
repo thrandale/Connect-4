@@ -5,10 +5,13 @@
   "main": "index.js",
   "scripts": {
     "start": "tsc --watch & firebase serve --only hosting",
-    "build": "tsc"
+    "build": "tsc",
+    "clean": "rm -rf public/dist",
+    "format": "prettier --write ."
   },
   "devDependencies": {
     "@types/node": "^20.14.6",
+    "prettier": "3.3.2",
     "typescript": "^5.4.5"
   }
 }
