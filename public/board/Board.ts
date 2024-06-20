@@ -1,5 +1,5 @@
-import Column from "./Column.js";
 import AI from "./AI.js";
+import Column from "./Column.js";
 
 export type Player = "red" | "blue";
 export type Drop = { row: number; column: number; player?: Player };
@@ -229,5 +229,9 @@ export default class Board {
 
   set difficulty(difficulty) {
     this._difficulty = difficulty;
+  }
+
+  get AI() {
+    return this._AI;
   }
 }

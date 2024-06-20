@@ -136,7 +136,13 @@ async function play() {
 }
 
 async function showWinner() {
-  alert(`${board.winner} wins!`);
+  console.log(board.AI.timeIterations);
+  console.log(
+    "Average time per iteration: ",
+    board.AI.timeIterations.reduce((a, b) => a + b, 0) /
+      board.AI.timeIterations.length,
+  );
+  // alert(`${board.winner} wins!`);
 }
 
 function createBoard() {

@@ -18,6 +18,7 @@ export default class AI {
   private _numColumns;
   private _iterations = 0;
   private _DEBUG = true;
+  public timeIterations: number[] = [];
 
   constructor(numColumns: number) {
     this._numColumns = numColumns;
@@ -85,6 +86,11 @@ export default class AI {
       let endTime = new Date().getTime();
       let timeTaken = endTime - startTime;
       console.log(`Time taken: ${timeTaken}ms\n\n`);
+      if (this._iterations > 0) {
+        let timeIteration = timeTaken / this._iterations;
+        console.log("Time/Iteration: " + timeIteration);
+        this.timeIterations.push(timeIteration);
+      }
     }
 
     // if multiple moves are within the tolerance, choose a random one
