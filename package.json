@@ -1,6 +1,9 @@
 {
   "name": "connect-4",
   "version": "1.0.0",
+  "engines": {
+    "node": "18.x"
+  },
   "description": "",
   "main": "index.js",
   "scripts": {
